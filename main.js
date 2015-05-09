@@ -21,7 +21,7 @@ Cylon.robot({
       leftHand: { driver: "servo", pin: 5 },
       rightHand: { driver: "servo", pin: 6 },
       body: { driver: "servo", pin: 9 },
-      maxbotix: { driver: 'maxbotix', pin: 1 }
+      button: { driver: 'button', pin: 2 }
   },
 
   work: function(my) {      
@@ -31,7 +31,11 @@ Cylon.robot({
       my.rightHand.angle(0);
       my.leftHand.angle(0);
       my.head.angle(0);
-      console.log("Cookie Monster is up and running!"); 
+      
+      my.button.on('push', function() {
+            my.say("I want my COOKIES!");
+        });
+        console.log("Cookie Monster is up and running!"); 
   },
   
    name: "Cookie Monster",
