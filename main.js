@@ -21,11 +21,16 @@ Cylon.robot({
       leftHand: { driver: "servo", pin: 5 },
       rightHand: { driver: "servo", pin: 6 },
       body: { driver: "servo", pin: 9 },
-      maxbotix: { driver: 'maxbotix', pin: 0 }
+      maxbotix: { driver: 'maxbotix', pin: 1 }
   },
 
   work: function(my) {      
       console.log("Cookie Monster is up and running!");   
+      my.body.angle(0);
+      my.rightHand.angle(0);
+      my.leftHand.angle(0);
+      my.head.angle(0);
+      
       every((1).seconds(), function() {
       my.maxbotix.range(function(data) {
         console.log("range: " + data);
