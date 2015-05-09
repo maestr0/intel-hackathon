@@ -10,6 +10,7 @@
       "cylon": "latest",
       "cylon-firmata": "latest",
       "cylon-gpio": "latest",
-      "cylon-api-http": "latest"
+      "cylon-api-http": "latest",
+      "http": "latest"
   }
 }

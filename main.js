@@ -25,17 +25,13 @@ Cylon.robot({
   },
 
   work: function(my) {      
-      console.log("Cookie Monster is up and running!");   
+        
+      my.init();
       my.body.angle(0);
       my.rightHand.angle(0);
       my.leftHand.angle(0);
       my.head.angle(0);
-      
-      every((1).seconds(), function() {
-      my.maxbotix.range(function(data) {
-        console.log("range: " + data);
-      });
-    });
+      console.log("Cookie Monster is up and running!"); 
   },
   
    name: "Cookie Monster",
@@ -57,6 +53,59 @@ Cylon.robot({
        say: this.say,
        move: this.move
     };
-  }
+  },
+    
+    init: function(){
+        console.log('inside init');
+        var that = this;
+        
+        var http = require('http');
+        var moveQueue = [],
+            sayQueue = [];
+
+        every((5).seconds(), function(){
+            console.log('API call');
+
+            var optionsget = {
+                host : 'mouseinabox.info',
+                port : 8000,
+                path : '/get_commands',
+                method : 'GET'
+            };
+
+            var actionsObject = {};
+
+            // do the GET request
+            var reqGet = http.request(optionsget, function(res) {
+
+                res.on('data', function(d) {
+                    actionsObject = JSON.parse(d);
+                    console.log(actionsObject);
+                    for (var i = 0; i < actionsObject.length; i++) {
+                        if (actionsObject[i].command === 'say'){
+                            console.log(actionsObject[i].params);
+                            that.say(actionsObject[i].params);
+                            //sayQueue.push(actionsObject[i].params);
+                        }
+                        else {
+                            console.log(actionsObject[i]);
+                            //moveQueue.push(actionsObject[i]);
+                        }
+                        console.log(actionsObject[i].command);
+                    }
+                });
+
+            });
+
+            reqGet.end();
+            reqGet.on('error', function(e) {
+                console.error(e);
+            });
+
+        });
+
+    }
 
 }).start();
+
+
