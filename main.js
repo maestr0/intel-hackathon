@@ -1,9 +1,9 @@
 var Cylon = require('cylon');
 var sys = require('sys')
 var exec = require('child_process').exec;
-function puts(error, stdout, stderr) { sys.puts(stdout);
-                                     sys.puts(error);
-                                      sys.puts(stderr);
+function puts(error, stdout, stderr) {  sys.puts(stdout);
+                                        sys.puts(error);
+                                        sys.puts(stderr);
                                      };
 
 Cylon.api({
@@ -17,17 +17,23 @@ Cylon.robot({
   },
 
   devices: {
-      servohead: { driver: "servo", pin: 3 },
-      servo2: { driver: "servo", pin: 5 },
-      servo3: { driver: "servo", pin: 6 },
-      servo4: { driver: "servo", pin: 9 }
+      head: { driver: "servo", pin: 3 },
+      leftHand: { driver: "servo", pin: 5 },
+      rightHand: { driver: "servo", pin: 6 },
+      body: { driver: "servo", pin: 9 },
+      maxbotix: { driver: 'maxbotix', pin: 0 }
   },
 
   work: function(my) {      
-      console.log("Started!");      
+      console.log("Cookie Monster is up and running!");   
+      every((1).seconds(), function() {
+      my.maxbotix.range(function(data) {
+        console.log("range: " + data);
+      });
+    });
   },
   
-   name: "Pawel's Edison",
+   name: "Cookie Monster",
 
   say: function(msg) {
       var cmd = "/home/root/git/intel-edison/say.sh \"" + msg +"\"";
@@ -36,17 +42,15 @@ Cylon.robot({
     return "Saying ... " + msg;
   },
   
-    move_head: function(angle){
-        console.log("Before Angle: " + (this.servohead.currentAngle()));
-        this.servohead.angle(angle);
-        console.log("Current Angle: " + (this.servohead.currentAngle()));
-        return "moved head to " + angle;
+    move: function(angle, servoName){        
+        this[servoName].angle(angle);        
+        return "moving " + servoName + " @ " + angle;
     },
     
     commands: function() {
     return {
        say: this.say,
-       move_head: this.move_head
+       move: this.move
     };
   }
 
