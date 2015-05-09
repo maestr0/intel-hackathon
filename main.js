@@ -91,8 +91,14 @@ Cylon.robot({
                             that.say(actionsObject[i].params);
                             //sayQueue.push(actionsObject[i].params);
                         }
-                        else {
-                            console.log(actionsObject[i]);
+                        else if (actionsObject[i].command === 'move'){
+                            //console.log(actionsObject[i]);
+                            switch(actionsObject[i].part) {
+                                case 'left_hand': that.leftHand.angle(actionsObject[i].angle); break;
+                                case 'right_hand': that.rightHand.angle(actionsObject[i].angle); break;
+                                case 'head': that.head.angle(actionsObject[i].angle); break;
+                                case 'body': that.body.angle(actionsObject[i].angle); break;
+                            }
                             //moveQueue.push(actionsObject[i]);
                         }
                         console.log(actionsObject[i].command);
