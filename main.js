@@ -23,7 +23,9 @@ Cylon.robot({
       body: { driver: "servo", pin: 9 },
       button: { driver: 'button', pin: 2 }
   },
-
+    
+    sayQueue:[],
+    
   work: function(my) {      
         
       my.init();
@@ -36,16 +38,35 @@ Cylon.robot({
             my.say("I want my COOKIES!");
         });
         console.log("Cookie Monster is up and running!"); 
+      
+      
+      setTimeout(this.ttsWorker, 500); 
   },
+    
+    ttsWorker: function(){
+        
+        if(this.sayQueue.length===0){
+            setTimeout(this.ttsWorker, 1000);
+        } else {
+            var msg = this.sayQueue.shift();
+            var xFactor = 50;
+            this.textToSpeach(msg);
+            setTimeout(this.ttsWorker, msg.length * xFactor);
+        }
+    },    
   
    name: "Cookie Monster",
 
   say: function(msg) {
-      var cmd = "/home/root/git/intel-edison/say.sh \"" + msg +"\"";
-      console.log("executing", cmd);
-      exec(cmd, puts);
-    return "Saying ... " + msg;
+      this.sayQueue.push(msg);      
+    return "Added to Say Queue." + msg;
   },
+    
+    textToSpeach: function(msg){
+          var cmd = "/home/root/git/intel-edison/say.sh \"" + msg +"\"";
+          console.log("executing", cmd);
+          exec(cmd, puts);
+    },
   
     move: function(angle, servoName){        
         this[servoName].angle(angle);        
@@ -64,9 +85,8 @@ Cylon.robot({
         var that = this;
         
         var http = require('http');
-        var moveQueue = [],
-            sayQueue = [];
-
+        var moveQueue = [];            
+        
         every((5).seconds(), function(){
             console.log('API call');
 
@@ -88,8 +108,8 @@ Cylon.robot({
                     for (var i = 0; i < actionsObject.length; i++) {
                         if (actionsObject[i].command === 'say'){
                             console.log(actionsObject[i].params);
-                            that.say(actionsObject[i].params);
-                            //sayQueue.push(actionsObject[i].params);
+                            //that.say(actionsObject[i].params);
+                            that.sayQueue.push(actionsObject[i].params);
                         }
                         else if (actionsObject[i].command === 'move'){
                             //console.log(actionsObject[i]);
