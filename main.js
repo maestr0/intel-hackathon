@@ -182,40 +182,20 @@ Cylon.robot({
           , access_token_secret:  'UByJiAmDjokddJb1DNyZ3RHlHLosfyapXrUFRxvSii58w'
         });
         
-        var tweetsUsed = '';
-        
-        var searchTweetsFrom = Date.now();
-        
-        setInterval(function(){
+        var stream = T.stream('statuses/filter', { track: 'intelcookiemonster' });
             
-            T.get('search/tweets', { q: '#cookiemonster #intelmaker since:2015-05-09', count: 10 }, function(err, data, response) {
-//                console.log(data);
-                
-                if (data !== null && typeof data.statuses !== "undefined" &&  data.statuses !== null){
-                    
-                    
-
-                    for (var i = 0; i < data.statuses.length; i++){
-                        var sayTweetStr = '';
-                        var sayTweetArray = [];
-                        // cookieTweetArray.push({'id':data.statuses[i].id, 'tweet': data.statuses[i].text});
-                        if (tweetsUsed.indexOf(data.statuses[i].id) === -1){
-                            tweetsUsed = tweetsUsed + ',' + data.statuses[i].id;
-                            sayTweetArray = data.statuses[i].text.replace( /\n/g, " " ).split(' ');
-                            for (var j = 0; j < sayTweetArray.length; j++){
-                                if ((sayTweetArray[j][0] !== '#') && (sayTweetArray[j][0] !== '@') && (sayTweetArray[j].substring(0,4) !== 'http')){
-                                    sayTweetStr = sayTweetStr + ' ' + sayTweetArray[j];
-                                }
-                            }
-                            that.say(sayTweetStr);
-                            console.log(sayTweetStr);
-                        }
-                    }
+        stream.on('tweet', function (tweet) {
+            var sayTweetStr = '';
+            var sayTweetArray = [];
+            sayTweetArray = tweet.text.replace( /\n/g, " " ).split(' ');
+            for (var j = 0; j < sayTweetArray.length; j++){
+                if ((sayTweetArray[j][0] !== '#') && (sayTweetArray[j][0] !== '@') && (sayTweetArray[j].substring(0,4) !== 'http')){
+                    sayTweetStr = sayTweetStr + ' ' + sayTweetArray[j];
                 }
-            });
-            
-        },5000);
-        
+            }
+            that.say(sayTweetStr);
+            console.log(sayTweetStr);
+        });
         
     }
     
