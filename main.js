@@ -28,6 +28,7 @@ Cylon.robot({
       rightHand: { driver: "servo", pin: 6 },
       body: { driver: "servo", pin: 9 },
       button: { driver: 'button', pin: 2 },
+      button2: { driver: 'button', pin: 8 },
       sensor: { driver: 'analog-sensor', pin: 0, lowerLimit: 15, upperLimit: 900 }
   },
     
@@ -61,6 +62,12 @@ Cylon.robot({
           var item = my.sayings[Math.floor(Math.random()*my.sayings.length)];
             my.say(item);
         });
+      
+     my.button2.on('push', function() {
+          var cmd = "mplayer /home/root/git/intel-edison/vomiting-03.wav";
+          console.log("executing", cmd);
+          exec(cmd, puts);
+    }); 
         console.log("Cookie Monster is up and running!"); 
       
       
