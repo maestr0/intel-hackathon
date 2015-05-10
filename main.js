@@ -15,7 +15,13 @@ Cylon.robot({
   connections: {
     edison: { adaptor: "intel-iot"}
   },
-
+    sayings: ["I would do anything for a cookie.",
+             "It's good to be alive.",
+              "That what wrong with the media today. All they have is questions, questions, questions. They never have cookies.",
+              "C is for Cookie and cookie is for me!"  ,
+              "I want my COOKIES!"
+             ]
+    ,
   devices: {
       head: { driver: "servo", pin: 3 },
       leftHand: { driver: "servo", pin: 5 },
@@ -51,12 +57,15 @@ Cylon.robot({
       my.head.angle(0);
       
       my.button.on('push', function() {
-            my.say("I want my COOKIES!");
+          var item = my.sayings[Math.floor(Math.random()*my.sayings.length)];
+            my.say(item);
         });
         console.log("Cookie Monster is up and running!"); 
       
       
-      setTimeout(this.ttsWorker, 500); 
+      setTimeout(this.ttsWorker, 500);
+      my.say("Hi");
+      my.say("I is good to be alive");
   },
     
     ttsWorker: function(){
