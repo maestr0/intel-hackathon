@@ -189,7 +189,10 @@ Cylon.robot({
         setInterval(function(){
             
             T.get('search/tweets', { q: '#cookiemonster #intelmaker since:2015-05-09', count: 10 }, function(err, data, response) {
+<<<<<<< Updated upstream
 //                console.log(data);
+=======
+>>>>>>> Stashed changes
                 
                 if (data !== null && typeof data.statuses !== "undefined" &&  data.statuses !== null){
                     
