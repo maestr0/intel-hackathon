@@ -199,7 +199,7 @@ Cylon.robot({
                             tweetsUsed = tweetsUsed + ',' + data.statuses[i].id;
                             sayTweetArray = data.statuses[i].text.replace( /\n/g, " " ).split(' ');
                             for (var j = 0; j < sayTweetArray.length; j++){
-                                if ((sayTweetArray[j][0] !== '#') && (sayTweetArray[j][0] !== '@')){
+                                if ((sayTweetArray[j][0] !== '#') && (sayTweetArray[j][0] !== '@') && (sayTweetArray[j].substring(0,4) !== 'http')){
                                     sayTweetStr = sayTweetStr + ' ' + sayTweetArray[j];
                                 }
                             }
