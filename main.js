@@ -15,18 +15,40 @@ Cylon.robot({
   connections: {
     edison: { adaptor: "intel-iot"}
   },
-
+    sayings: ["I would do anything for a cookie.",
+             "It's good to be alive.",
+              "That what wrong with the media today. All they have is questions, questions, questions. They never have cookies.",
+              "C is for Cookie and cookie is for me!"  ,
+              "I want my COOKIES!"
+             ]
+    ,
   devices: {
       head: { driver: "servo", pin: 3 },
       leftHand: { driver: "servo", pin: 5 },
       rightHand: { driver: "servo", pin: 6 },
       body: { driver: "servo", pin: 9 },
-      button: { driver: 'button', pin: 2 }
+      button: { driver: 'button', pin: 2 },
+      sensor: { driver: 'analog-sensor', pin: 0, lowerLimit: 15, upperLimit: 900 }
   },
     
     sayQueue:[],
     
-  work: function(my) {      
+    
+  work: function(my) { 
+    var ignoreProximity = false;  
+      var analogValue = 0;
+
+    my.sensor.on('lowerLimit', function(val) {
+      console.log("Lower limit reached!");
+      console.log('Analog value => ', val);        
+        if(!ignoreProximity) {            
+            ignoreProximity = true;
+            my.sayQueue.push("What the fuck is this shit in front of my eyeys?");                                          
+            setTimeout(function(){
+                ignoreProximity = false;
+            }, 5000);
+        }
+    });
         
       my.init();
       my.twitterInit();
@@ -36,23 +58,26 @@ Cylon.robot({
       my.head.angle(0);
       
       my.button.on('push', function() {
-            my.say("I want my COOKIES!");
+          var item = my.sayings[Math.floor(Math.random()*my.sayings.length)];
+            my.say(item);
         });
         console.log("Cookie Monster is up and running!"); 
       
       
-      setTimeout(this.ttsWorker, 500); 
+      setTimeout(this.ttsWorker, 500);
+      my.say("Hi");
+      my.say("I is good to be alive");
   },
     
     ttsWorker: function(){
         
         if(this.sayQueue.length===0){
-            setTimeout(this.ttsWorker, 1000);
+            setTimeout(this.ttsWorker, 100);
         } else {
             var msg = this.sayQueue.shift();
             var xFactor = 50;
             this.textToSpeach(msg);
-            setTimeout(this.ttsWorker, msg.length * xFactor);
+            setTimeout(this.ttsWorker, msg.length * xFactor + 1000);
         }
     },    
   
