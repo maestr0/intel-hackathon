@@ -30,7 +30,7 @@ Cylon.robot({
       button: { driver: 'button', pin: 2 },
       button2: { driver: 'button', pin: 8 },
       sensor: { driver: 'analog-sensor', pin: 0, lowerLimit: 15, upperLimit: 900 },
-      led: { driver: 'led', pin: 13 }
+      led: { driver: 'led', pin: 13 }    
   },
     
     sayQueue:[],
@@ -73,6 +73,9 @@ Cylon.robot({
           console.log("executing", cmd);
           exec(cmd, puts);
     }); 
+      
+      my.dance();
+      
         console.log("Cookie Monster is up and running!"); 
       
       
@@ -80,6 +83,58 @@ Cylon.robot({
       my.say("Hi");
       my.say("It is good to be alive");
   },
+    
+    dance: function(){
+        var my = this;
+        this.body.angle(30);
+        this.rightHand.angle(0);
+        this.leftHand.angle(180);
+        this.head.angle(180);
+        
+        setTimeout(function(){
+            my.body.angle(90);
+            my.rightHand.angle(90);
+            my.leftHand.angle(90);
+            my.head.angle(90);
+            
+            setTimeout(function(){
+                my.body.angle(90);
+                my.rightHand.angle(60);
+                my.leftHand.angle(20);
+                my.head.angle(45);
+                
+                setTimeout(function(){
+                    my.body.angle(90);
+                    my.rightHand.angle(90);
+                    my.leftHand.angle(90);
+                    my.head.angle(90);
+                    
+                     setTimeout(function(){
+                        my.body.angle(90);
+                        my.rightHand.angle(90);
+                        my.leftHand.angle(90);
+                        my.head.angle(90);
+
+                        setTimeout(function(){
+                            my.body.angle(90);
+                            my.rightHand.angle(60);
+                            my.leftHand.angle(20);
+                            my.head.angle(45);
+
+                            setTimeout(function(){
+                                my.body.angle(90);
+                                my.rightHand.angle(90);
+                                my.leftHand.angle(90);
+                                my.head.angle(90);
+                            },700);
+                        },700);
+
+                    },700);
+                },700);
+            },700);
+            
+        },700);
+    },
     
     ttsWorker: function(){
         
@@ -114,7 +169,8 @@ Cylon.robot({
     commands: function() {
     return {
        say: this.say,
-       move: this.move
+       move: this.move,
+         dance: this.dance
     };
   },
     
@@ -148,6 +204,10 @@ Cylon.robot({
                             console.log(actionsObject[i].params);
                             //that.say(actionsObject[i].params);
                             that.sayQueue.push(actionsObject[i].params);
+                        } else if (actionsObject[i].command === 'dance'){
+                            console.log(actionsObject[i].params);
+                            //that.say(actionsObject[i].params);
+                            that.dance();
                         }
                         else if (actionsObject[i].command === 'move'){
                             //console.log(actionsObject[i]);
