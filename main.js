@@ -183,13 +183,23 @@ Cylon.robot({
             
             T.get('search/tweets', { q: '#cookiemonster since:2015-05-09', count: 10 }, function(err, data, response) {
                 if (data.statuses !== null){
+                    
+                    
 
                     for (var i = 0; i < data.statuses.length; i++){
+                        var sayTweetStr = '';
+                        var sayTweetArray = [];
                         // cookieTweetArray.push({'id':data.statuses[i].id, 'tweet': data.statuses[i].text});
                         if (tweetsUsed.indexOf(data.statuses[i].id) === -1){
                             tweetsUsed = tweetsUsed + ',' + data.statuses[i].id;
-                            that.say(data.statuses[i].text);
-                            console.log(data.statuses[i].text);
+                            sayTweetArray = data.statuses[i].text.replace( /\n/g, " " ).split(' ');
+                            for (var j = 0; j < sayTweetArray.length; j++){
+                                if ((sayTweetArray[j][0] !== '#') && (sayTweetArray[j][0] !== '@')){
+                                    sayTweetStr = sayTweetStr + ' ' + sayTweetArray[j];
+                                }
+                            }
+                            that.say(sayTweetStr);
+                            console.log(sayTweetStr);
                         }
                     }
                 }
