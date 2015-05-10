@@ -1,9 +1,9 @@
 var Cylon = require('cylon');
 var sys = require('sys')
 var exec = require('child_process').exec;
-function puts(error, stdout, stderr) {  sys.puts(stdout);
-                                        sys.puts(error);
-                                        sys.puts(stderr);
+function puts(error, stdout, stderr) {  //sys.puts(stdout);
+                                        //sys.puts(error);
+                                        //sys.puts(stderr);
                                      };
 
 Cylon.api({
@@ -53,10 +53,10 @@ Cylon.robot({
         
       my.init();
       my.twitterInit();
-      my.body.angle(0);
-      my.rightHand.angle(0);
-      my.leftHand.angle(0);
-      my.head.angle(0);
+      my.body.angle(90);
+      my.rightHand.angle(90);
+      my.leftHand.angle(90);
+      my.head.angle(90);
       
       my.button.on('push', function() {
           var item = my.sayings[Math.floor(Math.random()*my.sayings.length)];
@@ -73,7 +73,7 @@ Cylon.robot({
       
       setTimeout(this.ttsWorker, 500);
       my.say("Hi");
-      my.say("I is good to be alive");
+      my.say("It is good to be alive");
   },
     
     ttsWorker: function(){
@@ -188,8 +188,10 @@ Cylon.robot({
         
         setInterval(function(){
             
-            T.get('search/tweets', { q: '#cookiemonster since:2015-05-09', count: 10 }, function(err, data, response) {
-                if (data.statuses !== null){
+            T.get('search/tweets', { q: '#cookiemonster #intelmaker since:2015-05-09', count: 10 }, function(err, data, response) {
+                console.log(data);
+                
+                if (data !== null && typeof data.statuses !== "undefined" &&  data.statuses !== null){
                     
                     
 
