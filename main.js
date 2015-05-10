@@ -189,15 +189,8 @@ Cylon.robot({
         setInterval(function(){
             
             T.get('search/tweets', { q: '#cookiemonster #intelmaker since:2015-05-09', count: 10 }, function(err, data, response) {
-<<<<<<< Updated upstream
-//                console.log(data);
-=======
->>>>>>> Stashed changes
                 
-                if (data !== null && typeof data.statuses !== "undefined" &&  data.statuses !== null){
-                    
-                    
-
+                if (typeof data !== "undefined" && data !== null && typeof data.statuses !== "undefined" &&  data.statuses !== null){
                     for (var i = 0; i < data.statuses.length; i++){
                         var sayTweetStr = '';
                         var sayTweetArray = [];
@@ -206,7 +199,7 @@ Cylon.robot({
                             tweetsUsed = tweetsUsed + ',' + data.statuses[i].id;
                             sayTweetArray = data.statuses[i].text.replace( /\n/g, " " ).split(' ');
                             for (var j = 0; j < sayTweetArray.length; j++){
-                                if ((sayTweetArray[j][0] !== '#') && (sayTweetArray[j][0] !== '@') && (sayTweetArray[j].substring(0,4) !== 'http')){
+                                if ((sayTweetArray[j][0] !== '#') && (sayTweetArray[j][0] !== '@')){
                                     sayTweetStr = sayTweetStr + ' ' + sayTweetArray[j];
                                 }
                             }
