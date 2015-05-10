@@ -29,6 +29,7 @@ Cylon.robot({
   work: function(my) {      
         
       my.init();
+      my.twitterInit();
       my.body.angle(0);
       my.rightHand.angle(0);
       my.leftHand.angle(0);
@@ -134,7 +135,47 @@ Cylon.robot({
 
         });
 
+    },
+    
+    twitterInit: function(){
+        
+        var that = this;
+        
+        var Twit = require('twit');
+
+        var T = new Twit({
+            consumer_key:         'PJm2UtzwPqmDdmx5gq65AGNIw'
+          , consumer_secret:      'ExQD15puURg8VFoVVm11MzAsH38PqWyNwrsl9kB53ByYcOv0sb'
+          , access_token:         '2840236010-wnBakeJPEWLbgPWSgW1ubxXtQztic8H3E1ZeFYR'
+          , access_token_secret:  'UByJiAmDjokddJb1DNyZ3RHlHLosfyapXrUFRxvSii58w'
+        });
+        
+        var tweetsUsed = '';
+        
+        var searchTweetsFrom = Date.now();
+        
+        setInterval(function(){
+            
+            T.get('search/tweets', { q: '#cookiemonster since:2015-05-09', count: 10 }, function(err, data, response) {
+                if (data.statuses !== null){
+
+                    for (var i = 0; i < data.statuses.length; i++){
+                        // cookieTweetArray.push({'id':data.statuses[i].id, 'tweet': data.statuses[i].text});
+                        if (tweetsUsed.indexOf(data.statuses[i].id) === -1){
+                            tweetsUsed = tweetsUsed + ',' + data.statuses[i].id;
+                            that.say(data.statuses[i].text);
+                            console.log(data.statuses[i].text);
+                        }
+                    }
+                }
+            });
+            
+        },5000);
+        
+        
     }
+    
+    
 
 }).start();
 

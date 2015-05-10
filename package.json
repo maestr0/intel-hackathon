@@ -11,6 +11,7 @@
       "cylon-firmata": "latest",
       "cylon-gpio": "latest",
       "cylon-api-http": "latest",
-      "http": "latest"
+      "http": "latest",
+      "twit": "latest"
   }
 }
