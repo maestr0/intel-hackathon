@@ -29,7 +29,7 @@ Cylon.robot({
       body: { driver: "servo", pin: 9 },
       button: { driver: 'button', pin: 2 },
       button2: { driver: 'button', pin: 8 },
-      sensor: { driver: 'analog-sensor', pin: 0, lowerLimit: 15, upperLimit: 900 },
+      sensor: { driver: 'analog-sensor', pin: 0, lowerLimit: 70, upperLimit: 900 },
       led: { driver: 'led', pin: 13 }    
   },
     
@@ -45,7 +45,26 @@ Cylon.robot({
       console.log('Analog value => ', val);        
         if(!ignoreProximity) {            
             ignoreProximity = true;
-            my.sayQueue.push("Me see cookie. Me want cookie.");                                          
+            my.sayQueue.push("Me see cookie. Me want cookie.");    
+            setTimeout(function(){
+                my.body.angle(40);
+                my.rightHand.angle(180);
+                my.leftHand.angle(0);
+                my.head.angle(0);
+
+                setTimeout(function(){
+                    my.body.angle(90);
+                    my.rightHand.angle(90);
+                    my.leftHand.angle(120);
+                    my.head.angle(180);
+                     setTimeout(function(){
+                            my.body.angle(90);
+                            my.rightHand.angle(90);
+                            my.leftHand.angle(10);
+                            my.head.angle(80);
+                        },700);
+                },700);
+            },700);
             setTimeout(function(){
                 ignoreProximity = false;
             }, 5000);
@@ -126,6 +145,122 @@ Cylon.robot({
                                 my.rightHand.angle(90);
                                 my.leftHand.angle(90);
                                 my.head.angle(90);
+                                
+                                setTimeout(function(){
+                                    my.body.angle(180);
+                                    my.rightHand.angle(180);
+                                    my.leftHand.angle(0);
+                                    my.head.angle(0);
+                                    
+                                    setTimeout(function(){
+                                        my.body.angle(120);
+                                        my.rightHand.angle(180);
+                                        my.leftHand.angle(0);
+                                        my.head.angle(60);
+                                    },700);
+                                    
+                                    setTimeout(function(){
+                                        my.body.angle(60);
+                                        my.rightHand.angle(180);
+                                        my.leftHand.angle(0);
+                                        my.head.angle(120);
+                                        
+                                        setTimeout(function(){
+                                            my.body.angle(0);
+                                            my.rightHand.angle(180);
+                                            my.leftHand.angle(0);
+                                            my.head.angle(0);
+                                            
+                                            setTimeout(function(){
+                                                my.body.angle(90);
+                                                my.rightHand.angle(90);
+                                                my.leftHand.angle(120);
+                                                my.head.angle(90);
+                                                
+                                                setTimeout(function(){
+            my.body.angle(90);
+            my.rightHand.angle(90);
+            my.leftHand.angle(90);
+            my.head.angle(90);
+            
+            setTimeout(function(){
+                my.body.angle(90);
+                my.rightHand.angle(60);
+                my.leftHand.angle(20);
+                my.head.angle(45);
+                
+                setTimeout(function(){
+                    my.body.angle(90);
+                    my.rightHand.angle(90);
+                    my.leftHand.angle(90);
+                    my.head.angle(90);
+                    
+                     setTimeout(function(){
+                        my.body.angle(90);
+                        my.rightHand.angle(90);
+                        my.leftHand.angle(90);
+                        my.head.angle(90);
+
+                        setTimeout(function(){
+                            my.body.angle(90);
+                            my.rightHand.angle(60);
+                            my.leftHand.angle(20);
+                            my.head.angle(45);
+
+                            setTimeout(function(){
+                                my.body.angle(90);
+                                my.rightHand.angle(90);
+                                my.leftHand.angle(90);
+                                my.head.angle(90);
+                                
+                                setTimeout(function(){
+                                    my.body.angle(180);
+                                    my.rightHand.angle(180);
+                                    my.leftHand.angle(0);
+                                    my.head.angle(0);
+                                    
+                                    setTimeout(function(){
+                                        my.body.angle(120);
+                                        my.rightHand.angle(180);
+                                        my.leftHand.angle(0);
+                                        my.head.angle(60);
+                                    },700);
+                                    
+                                    setTimeout(function(){
+                                        my.body.angle(60);
+                                        my.rightHand.angle(180);
+                                        my.leftHand.angle(0);
+                                        my.head.angle(120);
+                                        
+                                        setTimeout(function(){
+                                            my.body.angle(0);
+                                            my.rightHand.angle(180);
+                                            my.leftHand.angle(0);
+                                            my.head.angle(0);
+                                            
+                                            setTimeout(function(){
+                                                my.body.angle(90);
+                                                my.rightHand.angle(90);
+                                                my.leftHand.angle(120);
+                                                my.head.angle(90);
+                                            },700);
+                                        },700);
+                                    },700);
+                                },700);
+                                
+                            },700);
+                        },700);
+
+                    },700);
+                },700);
+            },700);
+            
+        },700);
+                                            },700);
+                                        },700);
+                                    },700);
+                                },700);
+                                
                             },700);
                         },700);
 
