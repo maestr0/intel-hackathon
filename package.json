@@ -2,7 +2,7 @@
   "name": "cookie-monster",
   "description": "",
   "version": "0.0.1",
-  "main": "main.js",
+  "main": "test.js",
   "engines": {
     "node": ">=0.10.0"
   },

@@ -16,7 +16,9 @@ Cylon.robot({
     connections: {
         edison: {adaptor: "intel-iot"}
     },
+
     name: "Cookie Monster",
+
     devices: {
         head: {
             driver: "servo", pin: 3,
@@ -51,25 +53,27 @@ Cylon.robot({
             limits: {bottom: 20, top: 160}
         },
         button: {driver: 'button', pin: 2},
-        button2: {driver: 'button', pin: 8},
+        relay: {driver: 'led', pin: 4},
         buzzer: {driver: "direct-pin", pin: 7, connection: "edison"},
-        sound: {driver: "analogSensor", pin: 1, connection: "edison"},
-        proximity: {driver: 'analog-sensor', pin: 0, lowerLimit: 20, upperLimit: 900},
+        button2: {driver: 'button', pin: 8},
         led: {driver: 'led', pin: 13},
-        relay: {driver: 'led', pin: 8}
+
+        proximity: {driver: 'analog-sensor', pin: 0, lowerLimit: 20, upperLimit: 900},
+        sound: {driver: "analog-sensor", pin: 1, connection: "edison", lowerLimit: 40, upperLimit: 900},
+        
+        screen: { driver: "upm-jhd1313m1", connection: "edison" }
     },
 
-    sayings: ["I would do anything for a cookie.",
-        "It's good to be alive.",
-        "That what wrong with the media today. All they have is questions, questions, questions. They never have cookies.",
-        "C is for Cookie and cookie is for me!",
-        "I want my COOKIES!"
-    ],
-
-    sayQueue: [],
+    speechQueue: [],
 
     work: function (my) {
-
+        this.relay.turnOn();
+        this.led.turnOn();
+        
+        my.body.angle(90);
+        my.rightHand.angle(90);                                                                
+        my.leftHand.angle(90);
+        my.head.angle(90);
         my.init();
 
         my.bind();
@@ -111,7 +115,7 @@ Cylon.robot({
                         if (actionsObject[i].command === 'say') {
                             console.log(actionsObject[i].params);
                             //that.say(actionsObject[i].params);
-                            that.sayQueue.push(actionsObject[i].params);
+                            that.speechQueue.push(actionsObject[i].params);
                         } else if (actionsObject[i].command === 'dance') {
                             console.log(actionsObject[i].params);
                             //that.say(actionsObject[i].params);
@@ -150,8 +154,12 @@ Cylon.robot({
 
     },
 
-    bind: function(){
+    bind: function () {
         var my = this;
+
+        my.sound.on('analogRead', function (val) {
+            //my.detectSound(val);
+        });
 
         my.button.on('push', function () {
             var item = my.sayings[Math.floor(Math.random() * my.sayings.length)];
@@ -163,12 +171,13 @@ Cylon.robot({
             console.log("executing", cmd);
             exec(cmd, puts);
         });
-
-        my.proximity.on('lowerLimit', function (val) {
-            var ignoreProximity = false;
+        
+        var ignoreProximity = false;
+        my.proximity.on('lowerLimit', function (val) {              
             if (!ignoreProximity) {
+                console.log("proximity " + val)
                 ignoreProximity = true;
-                my.sayQueue.push("Me see cookie. Me want cookie.");
+                my.speechQueue.push("Me see cookie. Me want cookie.");
                 my.relay.turnOn();
                 setTimeout(function () {
                     my.body.angle(40);
@@ -200,12 +209,54 @@ Cylon.robot({
 
     },
 
+    reset: function() {
+        this.writeMessage("Where are cookies?");
+        this.buzzer.digitalWrite(0);
+    },
+
+    writeMessage: function(message, color) {
+        var that = this;
+        var str = message.toString();
+        while (str.length < 16) {
+            str = str + " ";
+        }
+        console.log(message);
+        that.screen.setCursor(0,0);
+        that.screen.write(str);
+        switch(color)
+        {
+            case "red":
+                that.screen.setColor(255, 0, 0);
+                break;
+            case "green":
+                that.screen.setColor(0, 255, 0);
+                break;
+            case "blue":
+                that.screen.setColor(0, 0, 255);
+                break;
+            default:
+                that.screen.setColor(255, 255, 255);
+                break;
+        }
+    },
+
+    detectSound: function (val) {
+        var that = this;
+        if (val >= 450) {
+            console.log("Sound detected:", val)
+            that.writeMessage("Sound detected", "blue");
+            setTimeout(function () {
+                that.reset();
+            }, 500);
+        }
+    },
+
     ttsWorker: function () {
         this.led.turnOff();
-        if (this.sayQueue.length === 0) {
+        if (this.speechQueue.length === 0) {
             setTimeout(this.ttsWorker, 100);
         } else {
-            var msg = this.sayQueue.shift();
+            var msg = this.speechQueue.shift();
             var xFactor = 50;
             this.textToSpeach(msg);
             this.led.turnOn();
@@ -213,8 +264,15 @@ Cylon.robot({
         }
     },
 
+    sayings: ["I would do anything for a cookie.",
+        "It's good to be alive.",
+        "That what wrong with the media today. All they have is questions, questions, questions. They never have cookies.",
+        "C is for Cookie and cookie is for me!",
+        "I want my COOKIES!"
+    ],
+
     say: function (msg) {
-        this.sayQueue.push(msg);
+        this.speechQueue.push(msg);
         return "Added to Say Queue." + msg;
     },
 
