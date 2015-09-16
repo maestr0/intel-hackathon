@@ -15,15 +15,15 @@ Cylon.robot({
             // pulseWidth in MicroSeconds as per servo spec sheet
             // e.g. http://www.servodatabase.com/servo/towerpro/sg90
             pulseWidth: {min: 500, max: 2400},
-            limits: {bottom: 20, top: 160}
+            limits: {bottom: 0, top: 180}
         },
         leftHand: {
             driver: "servo", pin: 5,
             freq: 50,
             // pulseWidth in MicroSeconds as per servo spec sheet
             // e.g. http://www.servodatabase.com/servo/towerpro/sg90
-            pulseWidth: {min: 500, max: 2400},
-            limits: {bottom: 20, top: 160}
+            pulseWidth: {min: 1500, max: 2400},
+            limits: {bottom: 40, top: 90}
         },
         rightHand: {
             driver: "servo", pin: 6,
@@ -31,7 +31,7 @@ Cylon.robot({
             // pulseWidth in MicroSeconds as per servo spec sheet
             // e.g. http://www.servodatabase.com/servo/towerpro/sg90
             pulseWidth: {min: 500, max: 2400},
-            limits: {bottom: 20, top: 160}
+            limits: {bottom: 0, top: 180}
         },
         body: {
             driver: "servo", pin: 9,
@@ -39,7 +39,7 @@ Cylon.robot({
             // pulseWidth in MicroSeconds as per servo spec sheet
             // e.g. http://www.servodata\\base.com/servo/towerpro/sg90
             pulseWidth: {min: 500, max: 2400},
-            limits: {bottom: 20, top: 160}
+            limits: {bottom: 0, top: 180}
         },
         button: {driver: 'button', pin: 2},
         relay: {driver: 'led', pin: 4},
@@ -67,7 +67,7 @@ Cylon.robot({
   
         this.writeMessage("test test test test", "red");
         
-        my.relay.turnOff();
+        my.relay.turnOn();
         my.led.turnOn();
         
         my.body.angle(90);
@@ -100,17 +100,17 @@ Cylon.robot({
             my.beep();            
             my.writeMessage("button 2", "green");
             my.relay.turnOn();
-            if(move) {
-                my.head.angle(0);  
-                my.rightHand.angle(0);  
-                my.leftHand.angle(0);  
-                my.body.angle(0);  
+            if(move) { // middle
+                my.head.angle(60);  
+                my.rightHand.angle(my.rightHand.safeAngle(60));  //
+                my.leftHand.angle(my.leftHand.safeAngle(110));  
+               // my.body.angle(0);  
                 move = !move;
-            } else {
+            } else { // outer
                 my.head.angle(180);  
-                my.rightHand.angle(180);  
-                my.leftHand.angle(180);  
-                my.body.angle(180);  
+                my.rightHand.angle(my.rightHand.safeAngle(120));  // 0 is middle 180 is right
+                my.leftHand.angle(my.leftHand.safeAngle(0));  // 180 is max left 0 is middle
+               // my.body.angle(180);  //
                 move = !move;
             }
         });
