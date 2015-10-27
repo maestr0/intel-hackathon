@@ -3,15 +3,6 @@ var sys = require('sys')
 var exec = require('child_process').exec;
 var http = require('http');
 
-function puts(error, stdout, stderr) {
-    //        sys.puts(stdout);
-    //        sys.puts(error);
-    //        sys.puts(stderr);
-};
-
-
-var count = 0;
-
 var Config = {
     buzzerBreakDuration: 500,
     buzzerDefaultLength: 200,
@@ -26,7 +17,7 @@ var Config = {
 var CM = {
     speechQueue: [],
     buzzerQueue: [],
-    detectSound: true,
+    detectSound: 0,
 
     work: function (my) {
         /* INIT  FUNCTION */
@@ -48,29 +39,27 @@ var CM = {
         setTimeout(this.speechWorker, Config.voiceSynthesizerInterval);
     },
 
-    buzzerWorker: function () {
+    speechWorker: function () {
         var my = this;
-        if (this.buzzerQueue.length !== 0) {
-            var interval = this.buzzerQueue.shift();
-            this.detectSound = false;
-            this.buzzer.digitalWrite(1);
-            setTimeout(function () {
-                my.buzzer.digitalWrite(0);
-                my.detectSound = true;
-            }, interval);
+        this.led.turnOff();
+        if (this.speechQueue.length !== 0) {
+            this.blockSoundDetection();
+            var msg = this.speechQueue.shift();
+            this.led.turnOn();
+            this.runVoiceSynthesizer(msg, function (err, out, code) {
+                my.releaseSoundDetection();
+                setTimeout(my.speechWorker, Config.voiceSynthesizerInterval);
+            });
+        } else {
+            setTimeout(my.speechWorker, Config.voiceSynthesizerInterval);
         }
-        setTimeout(this.buzzerWorker, interval + Config.buzzerBreakDuration);
+
     },
 
-    initBuzzerWorker: function () {
-        this.buzzerWorker();
-    },
-
-    beep: function (interval) {
-        if (!interval) {
-            interval = Config.buzzerDefaultLength;
-        }
-        this.buzzerQueue.push(interval);
+    runVoiceSynthesizer: function (msg, callback) {
+        var cmd = "/home/root/git/intel-edison/speak-cm.sh \"" + msg + "\"";
+        this.debug("executing: " + cmd);
+        exec(cmd, callback);
     },
 
     bind: function () {
@@ -78,13 +67,13 @@ var CM = {
         this.ignoreSoundDetection = false;
         my.sound.on('analogRead', function (amplitude) {
             if (my.ignoreSoundDetection === false &&
-                (amplitude > Config.soundDetectionThreshold) && my.detectSound) {
+                (amplitude > Config.soundDetectionThreshold) && my.detectSound < 1) {
 
                 my.debug("sound amplitude = " + amplitude)
                 my.ignoreSoundDetection = true;
                 my.soundDetected();
                 setTimeout(function () {
-                    my.debug("reset ignoreSoudDetection");
+                    my.debug("reset ignoreSoundDetection");
                     my.ignoreSoundDetection = false;
                 }, Config.soundDetectionBreakDuration);
             }
@@ -98,10 +87,14 @@ var CM = {
         });
 
         my.buttonRight.on('push', function () {
+            my.blockSoundDetection();
             var cmd = "mplayer -volume 60 /home/root/git/intel-edison/vomiting-03.wav";
             my.debug("executing: " + cmd);
             my.beep();
-            exec(cmd, puts);
+            exec(cmd, function (err, out, code) {
+                my.debug("mplayer finished");
+                my.releaseSoundDetection();
+            });
         });
 
         //var ignoreProximity = false;
@@ -153,6 +146,44 @@ var CM = {
         //    }
         //});
 
+    },
+
+    say: function (msg) {
+        this.speechQueue.push(msg);
+    },
+
+    blockSoundDetection: function () {
+        this.detectSound++;
+        this.debug("block SD " + this.detectSound);
+    },
+    releaseSoundDetection: function () {
+        this.detectSound--;
+        this.debug("release SD " + this.detectSound);
+    },
+
+    buzzerWorker: function () {
+        var my = this;
+        if (this.buzzerQueue.length !== 0) {
+            var interval = this.buzzerQueue.shift();
+            this.blockSoundDetection();
+            this.buzzer.digitalWrite(1);
+            setTimeout(function () {
+                my.buzzer.digitalWrite(0);
+                my.releaseSoundDetection();
+            }, interval);
+        }
+        setTimeout(this.buzzerWorker, interval + Config.buzzerBreakDuration);
+    },
+
+    initBuzzerWorker: function () {
+        this.buzzerWorker();
+    },
+
+    beep: function (interval) {
+        if (!interval) {
+            interval = Config.buzzerDefaultLength;
+        }
+        this.buzzerQueue.push(interval);
     },
 
     soundDetected: function () {
@@ -226,30 +257,6 @@ var CM = {
                 that.screen.setColor(255, 255, 255);
                 break;
         }
-    },
-
-    speechWorker: function () {
-        this.detectSound = true;
-        this.led.turnOff();
-        var delay = 500;
-        if (this.speechQueue.length !== 0) {
-            this.detectSound = false;
-            var msg = this.speechQueue.shift();
-            var xFactor = 70;
-            this.runVoiceSynthesizer(msg);
-            this.led.turnOn();
-            delay = msg.length * xFactor + 1500;
-        }
-        setTimeout(this.speechWorker, delay);
-    },
-
-    say: function (msg) {
-        this.speechQueue.push(msg);
-    },
-
-    runVoiceSynthesizer: function (msg) {
-        var cmd = "/home/root/git/intel-edison/speak-cm.sh \"" + msg + "\"";
-        exec(cmd, puts);
     },
 
     move: function (angle, servoName) {
