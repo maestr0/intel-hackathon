@@ -13,9 +13,8 @@ function puts(error, stdout, stderr) {
 var count = 0;
 
 var Config = {
-    buzzerBreakDelay: 100,
-    buzzerDefaultLength: 700,
-    buzzerWorkerInterval: 100,
+    buzzerBreakDuration: 100,
+    buzzerDefaultLength: 200,
     startAPI: false
 }
 
@@ -31,9 +30,11 @@ var CM = {
         this.bind();
         this.initVoiceSynthesizer();
         this.initBuzzerWorker();
-        this.beep(1000);
-        this.beep(500);
-        this.beep(500);
+
+        this.beep(700);
+        this.beep(200);
+        this.beep(200);
+
         console.log("work() ok!");
     },
 
@@ -50,11 +51,11 @@ var CM = {
                 my.buzzer.digitalWrite(0);
             }, interval);
         }
-        setTimeout(this.buzzerWorker, interval + Config.buzzerBreakDelay);
+        setTimeout(this.buzzerWorker, interval + Config.buzzerBreakDuration);
     },
 
     initBuzzerWorker: function () {
-        setInterval(this.buzzerWorker, Config.buzzerWorkerInterval);
+        this.buzzerWorker();
     },
 
     beep: function (interval) {
