@@ -1,9 +1,162 @@
 {
   "project": {
-    "projectSettingsVersion": "1.2",
+    "projectSettingsVersion": "2.0.0",
     "initialAutoPluginCount": 0,
     "currentBuildConfiguration": "Android",
     "projectFiles": {},
     "projectDirectories": {}
+  },
+  "iot-tab": {
+    "fileStatus": {
+      ".gitignore": {
+        "previousModTime": 1431195501000,
+        "modified": 1431195501000,
+        "seen": true,
+        "name": ".gitignore"
+      },
+      "LICENSE": {
+        "previousModTime": 1431195501000,
+        "modified": 1431195501000,
+        "seen": true,
+        "name": "LICENSE"
+      },
+      "blank-project.xdk": {
+        "previousModTime": 1445907308000,
+        "modified": 1445907308000,
+        "seen": true,
+        "name": "blank-project.xdk"
+      },
+      "blank-project.xdke": {
+        "previousModTime": 1445912146000,
+        "modified": 1445912146000,
+        "seen": true,
+        "name": "blank-project.xdke"
+      },
+      "blank-project_1.2.0.xdk_bak": {
+        "previousModTime": 1445907308000,
+        "modified": 1445907308000,
+        "seen": true,
+        "name": "blank-project_1.2.0.xdk_bak"
+      },
+      "blank-project_1.2.0.xdke_bak": {
+        "previousModTime": 1445907308000,
+        "modified": 1445907308000,
+        "seen": true,
+        "name": "blank-project_1.2.0.xdke_bak"
+      },
+      "cm_api.js": {
+        "previousModTime": 1431213048000,
+        "modified": 1431213048000,
+        "seen": true,
+        "name": "cm_api.js"
+      },
+      "intel-hackathon.iml": {
+        "previousModTime": 1431831851000,
+        "modified": 1431831851000,
+        "seen": true,
+        "name": "intel-hackathon.iml"
+      },
+      "main.js": {
+        "previousModTime": 1445912198000,
+        "modified": 1445912198000,
+        "seen": true,
+        "name": "main.js"
+      },
+      "npm-debug.log": {
+        "previousModTime": 1431198039000,
+        "modified": 1431198039000,
+        "seen": true,
+        "name": "npm-debug.log"
+      },
+      "package.json": {
+        "previousModTime": 1445912072000,
+        "modified": 1445912072000,
+        "seen": true,
+        "name": "package.json"
+      },
+      "slack_api.js": {
+        "previousModTime": 1431220216000,
+        "modified": 1431220216000,
+        "seen": true,
+        "name": "slack_api.js"
+      },
+      "test.js": {
+        "previousModTime": 1433119492000,
+        "modified": 1433119492000,
+        "seen": true,
+        "name": "test.js"
+      },
+      ".idea/.name": {
+        "previousModTime": 1431831843000,
+        "modified": 1431831843000,
+        "seen": true,
+        "name": ".idea/.name"
+      },
+      ".idea/compiler.xml": {
+        "previousModTime": 1431831843000,
+        "modified": 1431831843000,
+        "seen": true,
+        "name": ".idea/compiler.xml"
+      },
+      ".idea/encodings.xml": {
+        "previousModTime": 1431831844000,
+        "modified": 1431831844000,
+        "seen": true,
+        "name": ".idea/encodings.xml"
+      },
+      ".idea/misc.xml": {
+        "previousModTime": 1431831843000,
+        "modified": 1431831843000,
+        "seen": true,
+        "name": ".idea/misc.xml"
+      },
+      ".idea/modules.xml": {
+        "previousModTime": 1431831851000,
+        "modified": 1431831851000,
+        "seen": true,
+        "name": ".idea/modules.xml"
+      },
+      ".idea/uiDesigner.xml": {
+        "previousModTime": 1432174905000,
+        "modified": 1432174905000,
+        "seen": true,
+        "name": ".idea/uiDesigner.xml"
+      },
+      ".idea/vcs.xml": {
+        "previousModTime": 1431831851000,
+        "modified": 1431831851000,
+        "seen": true,
+        "name": ".idea/vcs.xml"
+      },
+      ".idea/workspace.xml": {
+        "previousModTime": 1445911656000,
+        "modified": 1445911656000,
+        "seen": true,
+        "name": ".idea/workspace.xml"
+      },
+      ".idea/copyright/profiles_settings.xml": {
+        "previousModTime": 1431831843000,
+        "modified": 1431831843000,
+        "seen": true,
+        "name": ".idea/copyright/profiles_settings.xml"
+      },
+      ".idea/scopes/scope_settings.xml": {
+        "previousModTime": 1431831844000,
+        "modified": 1431831844000,
+        "seen": true,
+        "name": ".idea/scopes/scope_settings.xml"
+      },
+      "xdk/project-info.json": {
+        "previousModTime": 1445907308000,
+        "modified": 1445907308000,
+        "seen": true,
+        "name": "xdk/project-info.json"
+      }
+    },
+    "boardFileStatus": {
+      "main.js": {
+        "previousModTime": 1445912203161
+      }
+    }
   }
 }

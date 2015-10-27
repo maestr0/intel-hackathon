@@ -1,10 +1,10 @@
 {
   "project": {
-    "projectSettingsVersion": "1.2",
+    "projectSettingsVersion": "2.0.0",
     "creationData": {
       "projectTypeName": "com.intel.xdk.projecttype.iotapp",
       "projectGuid": "0280f121-754f-4391-8c03-3f36ba3e81c1",
-      "lastModifiedDate": 1431108928643,
+      "lastModifiedDate": 1445907308598,
       "creationDate": 1431108928611
     },
     "sourceDirectory": "",
@@ -31,11 +31,14 @@
         "isActive_": true,
         "appName_": "blank-project",
         "appID_": "not.yet.specified",
-        "appAccess_": [
-          {
-            "origin": "*"
-          }
-        ],
+        "appAccess_": {
+          "mode": "legacy",
+          "network": [
+            "*"
+          ],
+          "intents": [],
+          "navigation": []
+        },
         "icons_": [],
         "splashes_": [],
         "addlPermissions_": "",
@@ -57,11 +60,14 @@
         "isActive_": true,
         "appName_": "blank-project",
         "appID_": "not.yet.specified",
-        "appAccess_": [
-          {
-            "origin": "*"
-          }
-        ],
+        "appAccess_": {
+          "mode": "legacy",
+          "network": [
+            "*"
+          ],
+          "intents": [],
+          "navigation": []
+        },
         "icons_": [],
         "splashes_": [],
         "addlPermissions_": "",
@@ -82,11 +88,14 @@
         "isActive_": true,
         "appName_": "blank-project",
         "appID_": "not.yet.specified",
-        "appAccess_": [
-          {
-            "origin": "*"
-          }
-        ],
+        "appAccess_": {
+          "mode": "legacy",
+          "network": [
+            "*"
+          ],
+          "intents": [],
+          "navigation": []
+        },
         "icons_": [],
         "splashes_": [],
         "addlPermissions_": "",
@@ -103,11 +112,14 @@
         "isActive_": true,
         "appName_": "blank-project",
         "appID_": "not.yet.specified",
-        "appAccess_": [
-          {
-            "origin": "*"
-          }
-        ],
+        "appAccess_": {
+          "mode": "legacy",
+          "network": [
+            "*"
+          ],
+          "intents": [],
+          "navigation": []
+        },
         "icons_": [],
         "splashes_": [],
         "addlPermissions_": "",
@@ -115,6 +127,7 @@
         "appVersion_": "0.0.0.1",
         "cordovaCLIVersion_": "4.1.2"
       }
-    }
+    },
+    "testDirectory": "test"
   }
 }
