@@ -20,24 +20,24 @@ var CM = {
         this.led.turnOn();
         //my.initRemoteCommandReceiver();
         this.reset();
-        //my.bind();
+        my.bind();
         //setTimeout(this.ttsWorker, 500);
         console.log("I'm alive!");
     },
 
     bind: function () {
         var my = this;
-        var ignoreSoundDetection = false;
-        my.sound.on('analogRead', function (val) {
-            if (!my.ignoreSoundDetection) {
-                my.ignoreSoundDetection = true;
-                my.detectSound(val);
-                console.log("sound detection val=" + val);
-                setTimeout(function () {
-                    my.ignoreSoundDetection = false;
-                }, 1000);
-            }
-        });
+        //var ignoreSoundDetection = false;
+        //my.sound.on('analogRead', function (val) {
+        //    if (!my.ignoreSoundDetection) {
+        //        my.ignoreSoundDetection = true;
+        //        my.detectSound(val);
+        //        console.log("sound detection val=" + val);
+        //        setTimeout(function () {
+        //            my.ignoreSoundDetection = false;
+        //        }, 1000);
+        //    }
+        //});
 
         my.buttonLeft.on('push', function () {
             var item = my.sayings[Math.floor(Math.random() * my.sayings.length)];
@@ -50,54 +50,54 @@ var CM = {
             exec(cmd, puts);
         });
 
-        var ignoreProximity = false;
-        my.proximity.on('lowerLimit', function (val) {
-            if (!ignoreProximity) {
-                ignoreProximity = true;
-                console.log("\nproximity " + val)
-                my.speechQueue.push("Cookie");
-                count = count + 1;
-                console.log("count", count);
-                my.relay.turnOn();
-
-                setTimeout(function () {
-                    my.rightHand.angle(180);
-                    my.leftHand.angle(0);
-                    my.head.angle(0);
-                    my.body.angle(0);
-
-                    setTimeout(function () {
-                        my.body.angle(90);
-                        my.rightHand.angle(90);
-                        my.leftHand.angle(90);
-                        my.head.angle(60);
-                        my.body.angle(90);
-
-                        setTimeout(function () {
-                            my.body.angle(90);
-                            my.rightHand.angle(0);
-                            my.leftHand.angle(180);
-                            my.head.angle(120);
-                            my.body.angle(180);
-
-                            setTimeout(function () {
-                                my.rightHand.angle(90);
-                                my.leftHand.angle(90);
-                                my.head.angle(180);
-                                my.body.angle(180);
-                                setTimeout(function () {
-                                    my.relay.turnOff();
-                                }, 1000);
-                            }, 700);
-                        }, 700);
-                    }, 700);
-                }, 700);
-
-                setTimeout(function () {
-                    ignoreProximity = false;
-                }, 5000);
-            }
-        });
+        //var ignoreProximity = false;
+        //my.proximity.on('lowerLimit', function (val) {
+        //    if (!ignoreProximity) {
+        //        ignoreProximity = true;
+        //        console.log("\nproximity " + val)
+        //        my.speechQueue.push("Cookie");
+        //        count = count + 1;
+        //        console.log("count", count);
+        //        my.relay.turnOn();
+        //
+        //        setTimeout(function () {
+        //            my.rightHand.angle(180);
+        //            my.leftHand.angle(0);
+        //            my.head.angle(0);
+        //            my.body.angle(0);
+        //
+        //            setTimeout(function () {
+        //                my.body.angle(90);
+        //                my.rightHand.angle(90);
+        //                my.leftHand.angle(90);
+        //                my.head.angle(60);
+        //                my.body.angle(90);
+        //
+        //                setTimeout(function () {
+        //                    my.body.angle(90);
+        //                    my.rightHand.angle(0);
+        //                    my.leftHand.angle(180);
+        //                    my.head.angle(120);
+        //                    my.body.angle(180);
+        //
+        //                    setTimeout(function () {
+        //                        my.rightHand.angle(90);
+        //                        my.leftHand.angle(90);
+        //                        my.head.angle(180);
+        //                        my.body.angle(180);
+        //                        setTimeout(function () {
+        //                            my.relay.turnOff();
+        //                        }, 1000);
+        //                    }, 700);
+        //                }, 700);
+        //            }, 700);
+        //        }, 700);
+        //
+        //        setTimeout(function () {
+        //            ignoreProximity = false;
+        //        }, 5000);
+        //    }
+        //});
 
     },
 
@@ -112,12 +112,17 @@ var CM = {
     },
 
     reset: function () {
+        var that = this;
         this.writeMessage("");
+        this.relay.turnOn();
         this.buzzer.digitalWrite(0);
         this.body.angle(90);
         this.head.angle(90);
         this.rightHand.angle(90);
         this.leftHand.angle(90);
+        setTimeout(function(){
+            that.relay.turnOff();
+        },1000);
     },
 
     writeMessage: function (message, color) {
@@ -148,7 +153,7 @@ var CM = {
     detectSound: function (val) {
         var that = this;
         if (val >= 450) {
-            console.log("Sound detected:", val)
+            console.log("Sound detected:", val);
             that.writeMessage("Sound detected", "blue");
             that.speechQueue.push("What is this noise? I can't work like that.");
             setTimeout(function () {
@@ -547,10 +552,10 @@ var CM = {
     }
 };
 
-Cylon.api({
-        host: "0.0.0.0",
-        port: "3000"
-    })
+//Cylon.api({
+//        host: "0.0.0.0",
+//        port: "3000"
+//    })
 
 Cylon.robot(CM)
     .on('error', console.log)

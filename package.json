@@ -11,6 +11,8 @@
       "cylon-firmata": "latest",
       "cylon-gpio": "latest",
       "cylon-api-http": "latest",
+      "cylon-intel-iot": "latest",
+      "cylon-i2c": "latest",
       "http": "latest",
       "twit": "latest"
   }
