@@ -16,7 +16,8 @@ var Config = {
     buzzerBreakDuration: 500,
     buzzerDefaultLength: 200,
     soundDetectionThreshold: 450,
-    soundDetectionBreakDuration: 1000,
+    soundDetectionBreakDuration: 5000,
+    voiceSynthesizerInterval: 500,
     logger: true,
     debug: true,
     startAPI: false
@@ -25,6 +26,7 @@ var Config = {
 var CM = {
     speechQueue: [],
     buzzerQueue: [],
+    detectSound: true,
 
     work: function (my) {
         /* INIT  FUNCTION */
@@ -43,16 +45,18 @@ var CM = {
     },
 
     initVoiceSynthesizer: function () {
-        setTimeout(this.speechWorker, 500);
+        setTimeout(this.speechWorker, Config.voiceSynthesizerInterval);
     },
 
     buzzerWorker: function () {
         var my = this;
         if (this.buzzerQueue.length !== 0) {
             var interval = this.buzzerQueue.shift();
+            this.detectSound = false;
             this.buzzer.digitalWrite(1);
             setTimeout(function () {
                 my.buzzer.digitalWrite(0);
+                my.detectSound = true;
             }, interval);
         }
         setTimeout(this.buzzerWorker, interval + Config.buzzerBreakDuration);
@@ -73,8 +77,10 @@ var CM = {
         var my = this;
         this.ignoreSoundDetection = false;
         my.sound.on('analogRead', function (amplitude) {
-            if (my.ignoreSoundDetection === false && amplitude > Config.soundDetectionThreshold) {
-                my.debug("sound ampiltude = " + amplitude)
+            if (my.ignoreSoundDetection === false &&
+                (amplitude > Config.soundDetectionThreshold) && my.detectSound) {
+
+                my.debug("sound amplitude = " + amplitude)
                 my.ignoreSoundDetection = true;
                 my.soundDetected();
                 setTimeout(function () {
@@ -87,12 +93,13 @@ var CM = {
         my.buttonLeft.on('push', function () {
             var item = my.sayings[Math.floor(Math.random() * my.sayings.length)];
             my.beep();
+            my.debug("left button pressed say()");
             my.say(item);
         });
 
         my.buttonRight.on('push', function () {
             var cmd = "mplayer -volume 60 /home/root/git/intel-edison/vomiting-03.wav";
-            this.debug("executing", cmd);
+            my.debug("executing: " + cmd);
             my.beep();
             exec(cmd, puts);
         });
@@ -186,13 +193,13 @@ var CM = {
 
     debug: function (msg) {
         if (Config.debug) {
-            console.debug(msg);
+            console.log(new Date().toLocaleTimeString() + " " + msg);
         }
     },
 
     log: function (msg) {
         if (Config.logger) {
-            console.log(msg);
+            console.log(new Date().toLocaleTimeString() + " " + msg);
         }
     },
 
@@ -222,9 +229,11 @@ var CM = {
     },
 
     speechWorker: function () {
+        this.detectSound = true;
         this.led.turnOff();
         var delay = 500;
         if (this.speechQueue.length !== 0) {
+            this.detectSound = false;
             var msg = this.speechQueue.shift();
             var xFactor = 70;
             this.runVoiceSynthesizer(msg);
@@ -360,7 +369,7 @@ var CM = {
             driver: "analog-sensor",
             pin: 1,
             connection: "edison",
-            lowerLimit: 40,
+            lowerLimit: 700,
             upperLimit: 900
         },
 
