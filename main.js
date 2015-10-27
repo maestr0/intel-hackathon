@@ -4,10 +4,11 @@ var exec = require('child_process').exec;
 var http = require('http');
 
 var Config = {
-    buzzerBreakDuration: 500,
+    buzzerBreakDuration: 200,
     buzzerDefaultLength: 200,
     soundDetectionThreshold: 450,
     soundDetectionBreakDuration: 5000,
+    soundDetectionInterval: 500,
     voiceSynthesizerInterval: 500,
     logger: true,
     debug: true,
@@ -76,6 +77,11 @@ var CM = {
                     my.debug("reset ignoreSoundDetection");
                     my.ignoreSoundDetection = false;
                 }, Config.soundDetectionBreakDuration);
+            } else {
+                my.ignoreSoundDetection = true;
+                setTimeout(function () {
+                    my.ignoreSoundDetection = false;
+                }, Config.soundDetectionInterval);
             }
         });
 
@@ -169,15 +175,17 @@ var CM = {
 
             setTimeout(function () {
                 my.buzzer.digitalWrite(1);
-            }, 100);
+            }, 50);
 
             setTimeout(function () {
                 my.buzzer.digitalWrite(0);
-                my.releaseSoundDetection();
-                setTimeout(my.buzzerWorker, interval + Config.buzzerBreakDuration);
-            }, interval + 100);
+                setTimeout(function () {
+                    my.releaseSoundDetection();
+                }, 100);
+                setTimeout(my.buzzerWorker, Config.buzzerBreakDuration);
+            }, interval + 50);
         } else {
-            setTimeout(this.buzzerWorker, interval + Config.buzzerBreakDuration);
+            setTimeout(this.buzzerWorker, Config.buzzerBreakDuration);
         }
     },
 

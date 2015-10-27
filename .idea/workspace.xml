@@ -33,10 +33,10 @@
       <file leaf-file-name="main.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.43991855" vertical-offset="1983" max-vertical-offset="7110">
-              <caret line="161" column="6" selection-start-line="161" selection-start-column="6" selection-end-line="161" selection-end-column="6" />
+            <state vertical-scroll-proportion="0.5040733" vertical-offset="2130" max-vertical-offset="7320">
+              <caret line="175" column="36" selection-start-line="175" selection-start-column="36" selection-end-line="175" selection-end-column="36" />
               <folding>
-                <element signature="e#11226#20926#0" expanded="false" />
+                <element signature="e#11692#21392#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -242,7 +242,7 @@
       <workItem from="1431831852326" duration="151000" />
       <workItem from="1432174434809" duration="1652000" />
       <workItem from="1432262658168" duration="374000" />
-      <workItem from="1445911122446" duration="12311000" />
+      <workItem from="1445911122446" duration="13724000" />
     </task>
     <task id="LOCAL-00001" summary="fixed the issue with buzzing servos">
       <created>1431831940181</created>
@@ -298,11 +298,23 @@
       <option name="project" value="LOCAL" />
       <updated>1445923131552</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="sound detection works with blockers">
+      <created>1445925549086</created>
+      <option name="number" value="00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1445925549086</updated>
+    </task>
+    <task id="LOCAL-00011" summary="sound detection works with blockers">
+      <created>1445926171009</created>
+      <option name="number" value="00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1445926171009</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="14488000" />
+    <option name="totallyTimeSpent" value="15901000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1920" height="1080" extended-state="0" />
@@ -363,7 +375,8 @@
     <MESSAGE value="works" />
     <MESSAGE value="buzzer" />
     <MESSAGE value="sound detection" />
-    <option name="LAST_COMMIT_MESSAGE" value="sound detection" />
+    <MESSAGE value="sound detection works with blockers" />
+    <option name="LAST_COMMIT_MESSAGE" value="sound detection works with blockers" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -375,7 +388,7 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="8340">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#11226#20926#0" expanded="false" />
+            <element signature="e#11692#21392#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -385,7 +398,7 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="7575">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#11226#20926#0" expanded="false" />
+            <element signature="e#11692#21392#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -395,7 +408,7 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="6930">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#11226#20926#0" expanded="false" />
+            <element signature="e#11692#21392#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -445,10 +458,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.43991855" vertical-offset="1983" max-vertical-offset="7110">
-          <caret line="161" column="6" selection-start-line="161" selection-start-column="6" selection-end-line="161" selection-end-column="6" />
+        <state vertical-scroll-proportion="0.5040733" vertical-offset="2130" max-vertical-offset="7320">
+          <caret line="175" column="36" selection-start-line="175" selection-start-column="36" selection-end-line="175" selection-end-column="36" />
           <folding>
-            <element signature="e#11226#20926#0" expanded="false" />
+            <element signature="e#11692#21392#0" expanded="false" />
           </folding>
         </state>
       </provider>
