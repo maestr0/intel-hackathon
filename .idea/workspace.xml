@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="80fbdb14-c850-485e-a595-8adcb3114161" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/blank-project.xdke" afterPath="$PROJECT_DIR$/blank-project.xdke" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.js" afterPath="$PROJECT_DIR$/main.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cm_api.js" afterPath="$PROJECT_DIR$/cm_api.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/intel-hackathon.iml" afterPath="$PROJECT_DIR$/intel-hackathon.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="intel-hackathon.iws" />
@@ -33,10 +34,16 @@
       <file leaf-file-name="main.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.122199595" vertical-offset="0" max-vertical-offset="6870">
-              <caret line="8" column="31" selection-start-line="8" selection-start-column="31" selection-end-line="8" selection-end-column="31" />
+            <state vertical-scroll-proportion="0.045824848" vertical-offset="0" max-vertical-offset="6870">
+              <caret line="3" column="27" selection-start-line="3" selection-start-column="27" selection-end-line="3" selection-end-column="27" />
               <folding>
                 <element signature="e#10394#20094#0" expanded="false" />
+                <marker date="1445920628000" expanded="true" signature="4693:4930" placeholder="{...}" />
+                <marker date="1445920628000" expanded="true" signature="4955:5186" placeholder="{...}" />
+                <marker date="1445920628000" expanded="true" signature="5212:5512" placeholder="{...}" />
+                <marker date="1445920628000" expanded="true" signature="5541:5577" placeholder="{...}" />
+                <marker date="1445920628000" expanded="true" signature="5606:5683" placeholder="{...}" />
+                <marker date="1445920628000" expanded="true" signature="5634:5677" placeholder="{...}" />
               </folding>
             </state>
           </provider>
@@ -56,6 +63,8 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/main.js" />
+        <option value="$PROJECT_DIR$/.gitignore" />
+        <option value="$PROJECT_DIR$/cm_api.js" />
       </list>
     </option>
   </component>
@@ -240,7 +249,7 @@
       <workItem from="1431831852326" duration="151000" />
       <workItem from="1432174434809" duration="1652000" />
       <workItem from="1432262658168" duration="374000" />
-      <workItem from="1445911122446" duration="7934000" />
+      <workItem from="1445911122446" duration="8225000" />
     </task>
     <task id="LOCAL-00001" summary="fixed the issue with buzzing servos">
       <created>1431831940181</created>
@@ -278,11 +287,17 @@
       <option name="project" value="LOCAL" />
       <updated>1445914971841</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="sound detection">
+      <created>1445920642301</created>
+      <option name="number" value="00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1445920642301</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="10111000" />
+    <option name="totallyTimeSpent" value="10402000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1920" height="1080" extended-state="0" />
@@ -342,7 +357,8 @@
     <MESSAGE value="build compiles with the latest CyloneJS" />
     <MESSAGE value="works" />
     <MESSAGE value="buzzer" />
-    <option name="LAST_COMMIT_MESSAGE" value="buzzer" />
+    <MESSAGE value="sound detection" />
+    <option name="LAST_COMMIT_MESSAGE" value="sound detection" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -355,6 +371,12 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#10394#20094#0" expanded="false" />
+            <marker date="1445920628000" expanded="true" signature="4693:4930" placeholder="{...}" />
+            <marker date="1445920628000" expanded="true" signature="4955:5186" placeholder="{...}" />
+            <marker date="1445920628000" expanded="true" signature="5212:5512" placeholder="{...}" />
+            <marker date="1445920628000" expanded="true" signature="5541:5577" placeholder="{...}" />
+            <marker date="1445920628000" expanded="true" signature="5606:5683" placeholder="{...}" />
+            <marker date="1445920628000" expanded="true" signature="5634:5677" placeholder="{...}" />
           </folding>
         </state>
       </provider>
@@ -365,6 +387,12 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#10394#20094#0" expanded="false" />
+            <marker date="1445920628000" expanded="true" signature="4693:4930" placeholder="{...}" />
+            <marker date="1445920628000" expanded="true" signature="4955:5186" placeholder="{...}" />
+            <marker date="1445920628000" expanded="true" signature="5212:5512" placeholder="{...}" />
+            <marker date="1445920628000" expanded="true" signature="5541:5577" placeholder="{...}" />
+            <marker date="1445920628000" expanded="true" signature="5606:5683" placeholder="{...}" />
+            <marker date="1445920628000" expanded="true" signature="5634:5677" placeholder="{...}" />
           </folding>
         </state>
       </provider>
@@ -375,16 +403,71 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#10394#20094#0" expanded="false" />
+            <marker date="1445920628000" expanded="true" signature="4693:4930" placeholder="{...}" />
+            <marker date="1445920628000" expanded="true" signature="4955:5186" placeholder="{...}" />
+            <marker date="1445920628000" expanded="true" signature="5212:5512" placeholder="{...}" />
+            <marker date="1445920628000" expanded="true" signature="5541:5577" placeholder="{...}" />
+            <marker date="1445920628000" expanded="true" signature="5606:5683" placeholder="{...}" />
+            <marker date="1445920628000" expanded="true" signature="5634:5677" placeholder="{...}" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/LICENSE">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="952">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+      <provider editor-type-id="com.intellij.database.editor.CsvTableFileEditorProvider">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.42769858" vertical-offset="0" max-vertical-offset="982">
+          <caret line="28" column="3" selection-start-line="28" selection-start-column="3" selection-end-line="28" selection-end-column="3" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cm_api.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.045824848" vertical-offset="0" max-vertical-offset="982">
+          <caret line="3" column="20" selection-start-line="3" selection-start-column="20" selection-end-line="3" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.48167005" vertical-offset="473" max-vertical-offset="2700">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/slack_api.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.02342159" vertical-offset="1028" max-vertical-offset="2010">
+          <caret line="67" column="22" selection-start-line="67" selection-start-column="22" selection-end-line="67" selection-end-column="22" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/main.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.122199595" vertical-offset="0" max-vertical-offset="6870">
-          <caret line="8" column="31" selection-start-line="8" selection-start-column="31" selection-end-line="8" selection-end-column="31" />
+        <state vertical-scroll-proportion="0.045824848" vertical-offset="0" max-vertical-offset="6870">
+          <caret line="3" column="27" selection-start-line="3" selection-start-column="27" selection-end-line="3" selection-end-column="27" />
           <folding>
             <element signature="e#10394#20094#0" expanded="false" />
+            <marker date="1445920628000" expanded="true" signature="4693:4930" placeholder="{...}" />
+            <marker date="1445920628000" expanded="true" signature="4955:5186" placeholder="{...}" />
+            <marker date="1445920628000" expanded="true" signature="5212:5512" placeholder="{...}" />
+            <marker date="1445920628000" expanded="true" signature="5541:5577" placeholder="{...}" />
+            <marker date="1445920628000" expanded="true" signature="5606:5683" placeholder="{...}" />
+            <marker date="1445920628000" expanded="true" signature="5634:5677" placeholder="{...}" />
           </folding>
         </state>
       </provider>
