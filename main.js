@@ -164,15 +164,21 @@ var CM = {
     buzzerWorker: function () {
         var my = this;
         if (this.buzzerQueue.length !== 0) {
-            var interval = this.buzzerQueue.shift();
             this.blockSoundDetection();
-            this.buzzer.digitalWrite(1);
+            var interval = this.buzzerQueue.shift();
+
+            setTimeout(function () {
+                my.buzzer.digitalWrite(1);
+            }, 100);
+
             setTimeout(function () {
                 my.buzzer.digitalWrite(0);
                 my.releaseSoundDetection();
-            }, interval);
+                setTimeout(my.buzzerWorker, interval + Config.buzzerBreakDuration);
+            }, interval + 100);
+        } else {
+            setTimeout(this.buzzerWorker, interval + Config.buzzerBreakDuration);
         }
-        setTimeout(this.buzzerWorker, interval + Config.buzzerBreakDuration);
     },
 
     initBuzzerWorker: function () {
