@@ -4,7 +4,6 @@
     <list default="true" id="80fbdb14-c850-485e-a595-8adcb3114161" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/blank-project.xdke" afterPath="$PROJECT_DIR$/blank-project.xdke" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.js" afterPath="$PROJECT_DIR$/main.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/package.json" afterPath="$PROJECT_DIR$/package.json" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="intel-hackathon.iws" />
@@ -34,11 +33,11 @@
       <file leaf-file-name="main.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.49078566" vertical-offset="2933" max-vertical-offset="4995">
-              <caret line="263" column="25" selection-start-line="263" selection-start-column="25" selection-end-line="263" selection-end-column="25" />
+            <state vertical-scroll-proportion="0.3200776" vertical-offset="0" max-vertical-offset="5625">
+              <caret line="44" column="22" selection-start-line="44" selection-start-column="22" selection-end-line="44" selection-end-column="22" />
               <folding>
-                <element signature="e#9061#18761#0" expanded="false" />
-                <element signature="e#18807#21902#0" expanded="false" />
+                <element signature="e#10078#19778#0" expanded="false" />
+                <element signature="e#19824#22919#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -48,6 +47,11 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -237,7 +241,7 @@
       <workItem from="1431831852326" duration="151000" />
       <workItem from="1432174434809" duration="1652000" />
       <workItem from="1432262658168" duration="374000" />
-      <workItem from="1445911122446" duration="1478000" />
+      <workItem from="1445911122446" duration="3021000" />
     </task>
     <task id="LOCAL-00001" summary="fixed the issue with buzzing servos">
       <created>1431831940181</created>
@@ -257,11 +261,17 @@
       <option name="project" value="LOCAL" />
       <updated>1445912263185</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="works">
+      <created>1445912738314</created>
+      <option name="number" value="00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1445912738314</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="3655000" />
+    <option name="totallyTimeSpent" value="5198000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="3840" height="2160" extended-state="0" />
@@ -311,13 +321,16 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="CHECK_NEW_TODO" value="false" />
     <option name="myTodoPanelSettings">
       <TodoPanelSettings />
     </option>
     <MESSAGE value="fixed the issue with buzzing servos" />
     <MESSAGE value="clean up" />
     <MESSAGE value="build compiles with the latest CyloneJS" />
-    <option name="LAST_COMMIT_MESSAGE" value="build compiles with the latest CyloneJS" />
+    <MESSAGE value="works" />
+    <option name="LAST_COMMIT_MESSAGE" value="works" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -329,8 +342,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="8340">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#9061#18761#0" expanded="false" />
-            <element signature="e#18807#21902#0" expanded="false" />
+            <element signature="e#10078#19778#0" expanded="false" />
+            <element signature="e#19824#22919#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -340,8 +353,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="7575">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#9061#18761#0" expanded="false" />
-            <element signature="e#18807#21902#0" expanded="false" />
+            <element signature="e#10078#19778#0" expanded="false" />
+            <element signature="e#19824#22919#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -351,19 +364,19 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="6930">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#9061#18761#0" expanded="false" />
-            <element signature="e#18807#21902#0" expanded="false" />
+            <element signature="e#10078#19778#0" expanded="false" />
+            <element signature="e#19824#22919#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/main.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.49078566" vertical-offset="2933" max-vertical-offset="4995">
-          <caret line="263" column="25" selection-start-line="263" selection-start-column="25" selection-end-line="263" selection-end-column="25" />
+        <state vertical-scroll-proportion="0.3200776" vertical-offset="0" max-vertical-offset="5625">
+          <caret line="44" column="22" selection-start-line="44" selection-start-column="22" selection-end-line="44" selection-end-column="22" />
           <folding>
-            <element signature="e#9061#18761#0" expanded="false" />
-            <element signature="e#18807#21902#0" expanded="false" />
+            <element signature="e#10078#19778#0" expanded="false" />
+            <element signature="e#19824#22919#0" expanded="false" />
           </folding>
         </state>
       </provider>

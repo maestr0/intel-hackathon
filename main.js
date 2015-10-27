@@ -12,17 +12,56 @@ function puts(error, stdout, stderr) {
 
 var count = 0;
 
+var Config = {
+    buzzerBreakDelay: 100,
+    buzzerDefaultLength: 700,
+    buzzerWorkerInterval: 100,
+    startAPI: false
+}
+
 var CM = {
     speechQueue: [],
+    buzzerQueue: [],
 
     work: function (my) {
-        /* MAIN ENTRY FUNCTION */
+        /* INIT  FUNCTION */
         this.led.turnOn();
         //my.initRemoteCommandReceiver();
         this.reset();
-        my.bind();
-        //setTimeout(this.ttsWorker, 500);
-        console.log("I'm alive!");
+        this.bind();
+        this.initVoiceSynthesizer();
+        this.initBuzzerWorker();
+        this.beep(1000);
+        this.beep(500);
+        this.beep(500);
+        console.log("work() ok!");
+    },
+
+    initVoiceSynthesizer: function () {
+        setTimeout(this.ttsWorker, 500);
+    },
+
+    buzzerWorker: function () {
+        var my = this;
+        if (this.buzzerQueue.length !== 0) {
+            var interval = this.buzzerQueue.shift();
+            this.buzzer.digitalWrite(1);
+            setTimeout(function () {
+                my.buzzer.digitalWrite(0);
+            }, interval);
+        }
+        setTimeout(this.buzzerWorker, interval + Config.buzzerBreakDelay);
+    },
+
+    initBuzzerWorker: function () {
+        setInterval(this.buzzerWorker, Config.buzzerWorkerInterval);
+    },
+
+    beep: function (interval) {
+        if(!interval) {
+            interval = Config.buzzerDefaultLength;
+        }
+        this.buzzerQueue.push(interval);
     },
 
     bind: function () {
@@ -41,12 +80,14 @@ var CM = {
 
         my.buttonLeft.on('push', function () {
             var item = my.sayings[Math.floor(Math.random() * my.sayings.length)];
+            my.beep();
             my.say(item);
         });
 
         my.buttonRight.on('push', function () {
             var cmd = "mplayer -volume 60 /home/root/git/intel-edison/vomiting-03.wav";
             console.log("executing", cmd);
+            my.beep();
             exec(cmd, puts);
         });
 
@@ -115,14 +156,13 @@ var CM = {
         var that = this;
         this.writeMessage("");
         this.relay.turnOn();
-        this.buzzer.digitalWrite(0);
         this.body.angle(90);
         this.head.angle(90);
         this.rightHand.angle(90);
         this.leftHand.angle(90);
-        setTimeout(function(){
+        setTimeout(function () {
             that.relay.turnOff();
-        },1000);
+        }, 1000);
     },
 
     writeMessage: function (message, color) {
@@ -552,10 +592,12 @@ var CM = {
     }
 };
 
-//Cylon.api({
-//        host: "0.0.0.0",
-//        port: "3000"
-//    })
+if (Config.startAPI) {
+    Cylon.api({
+        host: "0.0.0.0",
+        port: "3000"
+    })
+}
 
 Cylon.robot(CM)
     .on('error', console.log)
