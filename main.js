@@ -13,8 +13,12 @@ function puts(error, stdout, stderr) {
 var count = 0;
 
 var Config = {
-    buzzerBreakDuration: 100,
+    buzzerBreakDuration: 500,
     buzzerDefaultLength: 200,
+    soundDetectionThreshold: 450,
+    soundDetectionBreakDuration: 1000,
+    logger: true,
+    debug: true,
     startAPI: false
 }
 
@@ -35,11 +39,11 @@ var CM = {
         this.beep(200);
         this.beep(200);
 
-        console.log("work() ok!");
+        this.log("work() ok!");
     },
 
     initVoiceSynthesizer: function () {
-        setTimeout(this.ttsWorker, 500);
+        setTimeout(this.speechWorker, 500);
     },
 
     buzzerWorker: function () {
@@ -59,7 +63,7 @@ var CM = {
     },
 
     beep: function (interval) {
-        if(!interval) {
+        if (!interval) {
             interval = Config.buzzerDefaultLength;
         }
         this.buzzerQueue.push(interval);
@@ -67,17 +71,18 @@ var CM = {
 
     bind: function () {
         var my = this;
-        //var ignoreSoundDetection = false;
-        //my.sound.on('analogRead', function (val) {
-        //    if (!my.ignoreSoundDetection) {
-        //        my.ignoreSoundDetection = true;
-        //        my.detectSound(val);
-        //        console.log("sound detection val=" + val);
-        //        setTimeout(function () {
-        //            my.ignoreSoundDetection = false;
-        //        }, 1000);
-        //    }
-        //});
+        this.ignoreSoundDetection = false;
+        my.sound.on('analogRead', function (amplitude) {
+            if (my.ignoreSoundDetection === false && amplitude > Config.soundDetectionThreshold) {
+                my.debug("sound ampiltude = " + amplitude)
+                my.ignoreSoundDetection = true;
+                my.soundDetected();
+                setTimeout(function () {
+                    my.debug("reset ignoreSoudDetection");
+                    my.ignoreSoundDetection = false;
+                }, Config.soundDetectionBreakDuration);
+            }
+        });
 
         my.buttonLeft.on('push', function () {
             var item = my.sayings[Math.floor(Math.random() * my.sayings.length)];
@@ -87,7 +92,7 @@ var CM = {
 
         my.buttonRight.on('push', function () {
             var cmd = "mplayer -volume 60 /home/root/git/intel-edison/vomiting-03.wav";
-            console.log("executing", cmd);
+            this.debug("executing", cmd);
             my.beep();
             exec(cmd, puts);
         });
@@ -143,6 +148,15 @@ var CM = {
 
     },
 
+    soundDetected: function () {
+        var my = this;
+        my.writeMessage("Sound detected", "blue");
+        my.say("What is this noise? Stop it.");
+        setTimeout(function () {
+            my.clearLCD();
+        }, Config.soundDetectionBreakDuration);
+    },
+
     move: function () {
         var that = this;
         that.relay.turnOn();
@@ -155,7 +169,7 @@ var CM = {
 
     reset: function () {
         var that = this;
-        this.writeMessage("");
+        this.screen.clear();
         this.relay.turnOn();
         this.body.angle(90);
         this.head.angle(90);
@@ -166,13 +180,29 @@ var CM = {
         }, 1000);
     },
 
+    clearLCD: function () {
+        this.screen.clear();
+    },
+
+    debug: function (msg) {
+        if (Config.debug) {
+            console.debug(msg);
+        }
+    },
+
+    log: function (msg) {
+        if (Config.logger) {
+            console.log(msg);
+        }
+    },
+
     writeMessage: function (message, color) {
         var that = this;
         var str = message.toString();
         while (str.length < 16) {
             str = str + " ";
         }
-        console.log("write LCD msg", message);
+        this.debug("write LCD msg", message);
         that.screen.setCursor(0, 0);
         that.screen.write(str);
         switch (color) {
@@ -191,38 +221,25 @@ var CM = {
         }
     },
 
-    detectSound: function (val) {
-        var that = this;
-        if (val >= 450) {
-            console.log("Sound detected:", val);
-            that.writeMessage("Sound detected", "blue");
-            that.speechQueue.push("What is this noise? I can't work like that.");
-            setTimeout(function () {
-                that.reset();
-            }, 500);
-        }
-    },
-
-    ttsWorker: function () {
+    speechWorker: function () {
         this.led.turnOff();
         var delay = 500;
         if (this.speechQueue.length !== 0) {
             var msg = this.speechQueue.shift();
             var xFactor = 70;
-            this.textToSpeach(msg);
+            this.runVoiceSynthesizer(msg);
             this.led.turnOn();
             delay = msg.length * xFactor + 1500;
         }
-        setTimeout(this.ttsWorker, delay);
+        setTimeout(this.speechWorker, delay);
     },
 
     say: function (msg) {
         this.speechQueue.push(msg);
     },
 
-    textToSpeach: function (msg) {
+    runVoiceSynthesizer: function (msg) {
         var cmd = "/home/root/git/intel-edison/speak-cm.sh \"" + msg + "\"";
-        this.writeMessage(msg, "red");
         exec(cmd, puts);
     },
 
@@ -526,7 +543,7 @@ var CM = {
     },
 
     initRemoteCommandReceiver: function () {
-        console.log('inside init');
+        this.debug('inside init');
         var that = this;
 
         //        var cmd = "/home/root/git/intel-edison/bluetooth_speaker.sh";
@@ -601,5 +618,5 @@ if (Config.startAPI) {
 }
 
 Cylon.robot(CM)
-    .on('error', console.log)
+    .on('error', console.error)
     .start();
