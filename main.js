@@ -2,6 +2,8 @@ var Cylon = require('cylon');
 var sys = require('sys')
 var exec = require('child_process').exec;
 var http = require('http');
+var Slack = require('slack-client');
+
 
 var Config = {
     buzzerBreakDuration: 200,
@@ -12,28 +14,70 @@ var Config = {
     voiceSynthesizerInterval: 500,
     logger: true,
     debug: true,
-    startAPI: false
+    startAPI: false,
+    slack: {
+        slackToken: 'xoxb-13361221814-18d8zqhgNi9RuvPEaQdnygag',
+        autoReconnect: true,
+        autoMark: true,
+        commands: {
+            execute: "execute ",
+            mute: "mute"
+        }
+    }
 }
-
 var CM = {
     speechQueue: [],
     buzzerQueue: [],
     detectSound: 0,
+    slack: new Slack(Config.slack.slackToken, Config.slack.autoReconnect, Config.slack.autoMark),
 
     work: function (my) {
         /* INIT  FUNCTION */
         this.led.turnOn();
-        //my.initRemoteCommandReceiver();
         this.reset();
         this.bind();
         this.initVoiceSynthesizer();
         this.initBuzzerWorker();
+        this.initSlack();
 
         this.beep(700);
         this.beep(200);
         this.beep(200);
 
         this.log("work() ok!");
+    },
+
+    slackMessageProcessor: function (message) {
+        var makeMention = function (userId) {
+            return '<@' + userId + '>: ';
+        };
+
+        var isDirect = function (userId, messageText) {
+            var userTag = makeMention(userId);
+            return messageText &&
+                messageText.length >= userTag.length &&
+                messageText.substr(0, userTag.length) === userTag;
+        };
+
+        var channel = this.slack.getChannelGroupOrDMByID(message.channel);
+        var user = this.slack.getUserByID(message.user);
+
+        if (message.type === 'message' && isDirect(this.slack.self.id, message.text)) {
+            var trimmedMessage = message.text.substr(makeMention(this.slack.self.id).length).trim();
+
+            if (trimmedMessage.substr(0, Config.slack.commands.execute.length) === Config.slack.commands.execute) {
+                var cmd = trimmedMessage.substr(Config.slack.commands.execute.length, trimmedMessage.length);
+                exec(cmd, function (err, out, code) {
+                    channel.send(out);
+                });
+            }
+            if (trimmedMessage.substr(0, Config.slack.commands.mute.length) === Config.slack.commands.mute) {
+                this.say("I will shut up!");
+            }
+            else {
+                channel.send("Got it!");
+            }
+        }
     },
 
     initVoiceSynthesizer: function () {
@@ -162,11 +206,11 @@ var CM = {
         this.detectSound++;
         this.debug("block SD " + this.detectSound);
     },
+
     releaseSoundDetection: function () {
         this.detectSound--;
         this.debug("release SD " + this.detectSound);
     },
-
     buzzerWorker: function () {
         var my = this;
         if (this.buzzerQueue.length !== 0) {
@@ -572,75 +616,25 @@ var CM = {
         }, 700);
     },
 
-    initRemoteCommandReceiver: function () {
-        this.debug('inside init');
-        var that = this;
+    initSlack: function () {
+        var my = this;
+        this.slack.on('message', function (message) {
+            my.slackMessageProcessor(message);
+        });
 
-        //        var cmd = "/home/root/git/intel-edison/bluetooth_speaker.sh";
-        //        console.log("executing", cmd);
-        //        exec(cmd, puts);
+        this.slack.on('error', function (err) {
+            console.error("Slack Error", err);
+        });
 
-
-        //        every((5).seconds(), function () {
-        //            var optionsget = {
-        //                host: 'mouseinabox.info',
-        //                port: 8000,
-        //                path: '/get_commands',
-        //                method: 'GET'
-        //            };
-        //
-        //            var actionsObject = {};
-        //
-        //            // do the GET request
-        //            var reqGet = http.request(optionsget, function (res) {
-        //
-        //                res.on('data', function (d) {
-        //                    actionsObject = JSON.parse(d);
-        //                    console.log(actionsObject);
-        //                    for (var i = 0; i < actionsObject.length; i++) {
-        //                        if (actionsObject[i].command === 'say') {
-        //                            console.log(actionsObject[i].params);
-        //                            //that.say(actionsObject[i].params);
-        //                            that.speechQueue.push(actionsObject[i].params);
-        //                        } else if (actionsObject[i].command === 'dance') {
-        //                            console.log(actionsObject[i].params);
-        //                            //that.say(actionsObject[i].params);
-        //                            that.dance();
-        //                        } else if (actionsObject[i].command === 'move') {
-        //                            //console.log(actionsObject[i]);
-        //                            switch (actionsObject[i].part) {
-        //                            case 'left_hand':
-        //                                that.leftHand.angle(actionsObject[i].angle);
-        //                                break;
-        //                            case 'right_hand':
-        //                                that.rightHand.angle(actionsObject[i].angle);
-        //                                break;
-        //                            case 'head':
-        //                                that.head.angle(actionsObject[i].angle);
-        //                                break;
-        //                            case 'body':
-        //                                that.body.angle(actionsObject[i].angle);
-        //                                break;
-        //                            }
-        //                            //moveQueue.push(actionsObject[i]);
-        //                        }
-        //                        console.log(actionsObject[i].command);
-        //                    }
-        //                });
-        //
-        //            });
-        //
-        //            reqGet.end();
-        //            reqGet.on('error', function (e) {
-        //                console.error(e);
-        //            });
-        //
-        //        });
-
+        this.slack.on('open', function (err) {
+            console.log("Connected to " + my.slack.team.name + " as @" + my.slack.self.name);
+        });
+        this.slack.login();
     }
 };
 
 if (Config.startAPI) {
+
     Cylon.api({
         host: "0.0.0.0",
         port: "3000"

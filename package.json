@@ -14,6 +14,7 @@
       "cylon-intel-iot": "latest",
       "cylon-i2c": "latest",
       "http": "latest",
-      "twit": "latest"
+      "twit": "latest",
+      "slack-client": "latest"
   }
 }

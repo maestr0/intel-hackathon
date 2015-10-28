@@ -27,8 +27,8 @@
         "name": "blank-project.xdk"
       },
       "blank-project.xdke": {
-        "previousModTime": 1445926836000,
-        "modified": 1445926836000,
+        "previousModTime": 1446002562000,
+        "modified": 1446002562000,
         "seen": true,
         "name": "blank-project.xdke"
       },
@@ -51,14 +51,14 @@
         "name": "cm_api.js"
       },
       "intel-hackathon.iml": {
-        "previousModTime": 1445920949000,
-        "modified": 1445920949000,
+        "previousModTime": 1445995591000,
+        "modified": 1445995591000,
         "seen": true,
         "name": "intel-hackathon.iml"
       },
       "main.js": {
-        "previousModTime": 1445927044000,
-        "modified": 1445927044000,
+        "previousModTime": 1446002756000,
+        "modified": 1446002756000,
         "seen": true,
         "name": "main.js"
       },
@@ -69,8 +69,8 @@
         "name": "npm-debug.log"
       },
       "package.json": {
-        "previousModTime": 1445912072000,
-        "modified": 1445912072000,
+        "previousModTime": 1445995518000,
+        "modified": 1445995518000,
         "seen": true,
         "name": "package.json"
       },
@@ -129,8 +129,8 @@
         "name": ".idea/vcs.xml"
       },
       ".idea/workspace.xml": {
-        "previousModTime": 1445927056000,
-        "modified": 1445927056000,
+        "previousModTime": 1446002759000,
+        "modified": 1446002759000,
         "seen": true,
         "name": ".idea/workspace.xml"
       },
@@ -153,15 +153,27 @@
         "name": "xdk/project-info.json"
       },
       ".idea/jsLibraryMappings.xml": {
-        "previousModTime": 1445920949000,
-        "modified": 1445920949000,
+        "previousModTime": 1445995591000,
+        "modified": 1445995591000,
         "seen": true,
         "name": ".idea/jsLibraryMappings.xml"
+      },
+      "slack_bot.js": {
+        "previousModTime": 1446002166000,
+        "modified": 1446002166000,
+        "seen": true,
+        "name": "slack_bot.js"
+      },
+      ".idea/libraries/intel_hackathon_node_modules.xml": {
+        "previousModTime": 1445995591000,
+        "modified": 1445995591000,
+        "seen": true,
+        "name": ".idea/libraries/intel_hackathon_node_modules.xml"
       }
     },
     "boardFileStatus": {
       "main.js": {
-        "previousModTime": 1445927060027
+        "previousModTime": 1446002763559
       }
     }
   }
