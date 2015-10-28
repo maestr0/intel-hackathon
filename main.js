@@ -8,7 +8,7 @@ var Slack = require('slack-client');
 var Config = {
     buzzerBreakDuration: 200,
     buzzerDefaultLength: 200,
-    soundDetectionThreshold: 450,
+    soundDetectionThreshold: 750,
     soundDetectionBreakDuration: 5000,
     soundDetectionInterval: 500,
     voiceSynthesizerInterval: 500,
@@ -21,7 +21,10 @@ var Config = {
         autoMark: true,
         commands: {
             execute: "execute ",
-            mute: "mute"
+            mute: "mute",
+            say: "say ",
+            move: "move ",
+            unmute: "unmute"
         }
     }
 }
@@ -62,20 +65,34 @@ var CM = {
         var channel = this.slack.getChannelGroupOrDMByID(message.channel);
         var user = this.slack.getUserByID(message.user);
 
-        if (message.type === 'message' && isDirect(this.slack.self.id, message.text)) {
-            var trimmedMessage = message.text.substr(makeMention(this.slack.self.id).length).trim();
+        var startWith = function (string, startWith) {
+            return trimmedMessage.substr(0, startWith.length) === startWith;
+        }
 
-            if (trimmedMessage.substr(0, Config.slack.commands.execute.length) === Config.slack.commands.execute) {
-                var cmd = trimmedMessage.substr(Config.slack.commands.execute.length, trimmedMessage.length);
+        var removePrefix = function (string, prefix) {
+            return string.substr(prefix.length, string.length).trim();
+        }
+
+        if (message.type === 'message' && isDirect(this.slack.self.id, message.text)) {
+            var trimmedMessage = removePrefix(message.text, makeMention(this.slack.self.id));
+
+            if (startWith(trimmedMessage, Config.slack.commands.execute)) {
+                var cmd = removePrefix(trimmedMessage, Config.slack.commands.execute);
                 exec(cmd, function (err, out, code) {
                     channel.send(out);
                 });
-            }
-            if (trimmedMessage.substr(0, Config.slack.commands.mute.length) === Config.slack.commands.mute) {
+            } else if (trimmedMessage === Config.slack.commands.mute) {
                 this.say("I will shut up!");
+            } else if (trimmedMessage === Config.slack.commands.unmute) {
+                this.say("Cookies");
+            } else if (startWith(trimmedMessage, Config.slack.commands.say)) {
+                var text = removePrefix(trimmedMessage, Config.slack.commands.say);
+                this.say(text);
+            } else if (startWith(trimmedMessage, Config.slack.commands.move)) {
+                channel.send("not implemented");
             }
             else {
-                channel.send("Got it!");
+                channel.send("Got it!" + trimmedMessage);
             }
         }
     },
