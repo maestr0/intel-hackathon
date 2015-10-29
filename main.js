@@ -1,6 +1,7 @@
 var Cylon = require('cylon');
 var sys = require('sys');
-var exec = require('child_process').exec;
+//var exec = require('child_process').exec;
+var exec = require('exec-queue');
 var http = require('http');
 var Slack = require('slack-client');
 
@@ -17,6 +18,7 @@ var Config = {
     isUnMuted: true,
     debug: true,
     startAPI: false,
+    audioVolume: 60,
     slack: {
         slackToken: 'xoxb-13361221814-18d8zqhgNi9RuvPEaQdnygag',
         autoReconnect: true,
@@ -27,6 +29,7 @@ var Config = {
             say: "say ",
             move: "move ",
             help: "help",
+            audio: "audio",
             lunchLunch: "lunch lunch",
             unmute: "unmute"
         }
@@ -76,6 +79,9 @@ var CM = {
             this.say("Cookies");
         } else if (trimmedMessage === Config.slack.commands.lunchLunch) {
             this.say("Lunch, lunch, lunch. Stop working, let's go and eat something!");
+        } else if (startWith(trimmedMessage, Config.slack.commands.audio)) {
+            var text = removePrefix(trimmedMessage, Config.slack.commands.audio);
+            this.playAudio(text)
         } else if (trimmedMessage === Config.slack.commands.help) {
             var commands = "";
             for (cmd in Config.slack.commands) {
@@ -115,9 +121,8 @@ var CM = {
         this.ignoreSoundDetection = false;
         my.sound.on('analogRead', function (amplitude) {
             if (my.ignoreSoundDetection === false && (amplitude > Config.soundDetectionThreshold) && my.detectSound < 1 && my.isUnMuted) {
-
-                my.debug("sound amplitude = " + amplitude);
                 my.ignoreSoundDetection = true;
+                my.debug("sound amplitude = " + amplitude);
                 my.soundDetected();
                 setTimeout(function () {
                     my.debug("reset ignoreSoundDetection");
@@ -140,7 +145,7 @@ var CM = {
 
         my.buttonRight.on('push', function () {
             my.beep();
-            my.playAudio(my, "/home/root/git/intel-edison/vomiting-03.wav");
+            my.playAudio("vomiting-03.wav");
         });
 
         //var ignoreProximity = false;
@@ -206,10 +211,11 @@ var CM = {
         }
     },
 
-    playAudio: function (my, path) {
+    playAudio: function (path) {
+        var my = this;
         if (this.isUnMuted) {
             my.blockSoundDetection();
-            var cmd = "mplayer -volume 60 " + path;
+            var cmd = "mplayer -volume " + Config.audioVolume + " /home/root/git/intel-edison/audio/" + path;
             my.debug("executing: " + cmd);
             exec(cmd, function (err, out, code) {
                 my.debug("mplayer finished");

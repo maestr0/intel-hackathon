@@ -15,6 +15,7 @@
       "cylon-i2c": "latest",
       "http": "latest",
       "twit": "latest",
+      "exec-queue": "latest",
       "slack-client": "latest"
   }
 }
