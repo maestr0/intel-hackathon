@@ -1,6 +1,5 @@
 var Cylon = require('cylon');
 var sys = require('sys');
-//var exec = require('child_process').exec;
 var exec = require('exec-queue');
 var http = require('http');
 var Slack = require('slack-client');
@@ -8,12 +7,14 @@ var Slack = require('slack-client');
 
 var Config = {
     name: "Cookie Monster",
-    buzzerBreakDuration: 200,
+    buzzerWorkerInterval: 200,
     buzzerDefaultLength: 200,
     soundDetectionThreshold: 750,
     soundDetectionBreakDuration: 5000,
     soundDetectionInterval: 500,
-    voiceSynthesizerInterval: 500,
+    voiceSynthesizerWorkerInterval: 500,
+    audioWorkerInterval: 500,
+    audioWorkerBreakDuration: 1000,
     logger: true,
     isUnMuted: true,
     debug: true,
@@ -43,6 +44,8 @@ var Config = {
 var CM = {
     speechQueue: [],
     buzzerQueue: [],
+    audioQueue: [],
+    lcdQueue: [],
     detectSound: 0,
     isUnMuted: Config.isUnMuted,
     slack: new Slack(Config.slack.slackToken, Config.slack.autoReconnect, Config.slack.autoMark),
@@ -55,6 +58,7 @@ var CM = {
         this.bind();
         this.initVoiceSynthesizer();
         this.initBuzzerWorker();
+        this.initAudioPlayerWorker();
         this.initSlack();
 
         this.beep(700);
@@ -80,8 +84,12 @@ var CM = {
         } else if (trimmedMessage === Config.slack.commands.lunchLunch) {
             this.say("Lunch, lunch, lunch. Stop working, let's go and eat something!");
         } else if (startWith(trimmedMessage, Config.slack.commands.audio)) {
-            var text = removePrefix(trimmedMessage, Config.slack.commands.audio);
-            this.playAudio(text)
+            var text = removePrefix(trimmedMessage, Config.slack.commands.audio).trim();
+            if (text) {
+                this.audioQueue.push(text);
+            } else {
+                this.listAudioFiles(channel);
+            }
         } else if (trimmedMessage === Config.slack.commands.help) {
             var commands = "";
             for (cmd in Config.slack.commands) {
@@ -99,6 +107,14 @@ var CM = {
         }
     },
 
+    listAudioFiles: function (channel) {
+        var cmd = "ls /home/root/git/intel-edison/audio"
+        exec(cmd, function (err, out, code) {
+            channel.send(out);
+        });
+
+    },
+
     speechWorker: function () {
         var my = this;
         this.led.turnOff();
@@ -108,12 +124,25 @@ var CM = {
             this.led.turnOn();
             this.runVoiceSynthesizer(msg, function (err, out, code) {
                 my.releaseSoundDetection();
-                setTimeout(my.speechWorker, Config.voiceSynthesizerInterval);
+                setTimeout(my.speechWorker, Config.voiceSynthesizerWorkerInterval);
             });
         } else {
-            setTimeout(my.speechWorker, Config.voiceSynthesizerInterval);
+            setTimeout(my.speechWorker, Config.voiceSynthesizerWorkerInterval);
         }
+    },
 
+    audioPlayerWorker: function () {
+        var my = this;
+        if (this.audioQueue.length !== 0) {
+            this.blockSoundDetection();
+            var audioFile = this.audioQueue.shift();
+            this.executeAudioPlayer(audioFile, function (err, out, code) {
+                my.releaseSoundDetection();
+                setTimeout(my.audioPlayerWorker, Config.audioWorkerInterval);
+            });
+        } else {
+            setTimeout(my.audioPlayerWorker, Config.audioWorkerInterval);
+        }
     },
 
     bind: function () {
@@ -145,7 +174,7 @@ var CM = {
 
         my.buttonRight.on('push', function () {
             my.beep();
-            my.playAudio("vomiting-03.wav");
+            my.audioQueue.push("vomiting-03.wav");
         });
 
         //var ignoreProximity = false;
@@ -200,7 +229,11 @@ var CM = {
     },
 
     initVoiceSynthesizer: function () {
-        setTimeout(this.speechWorker, Config.voiceSynthesizerInterval);
+        this.speechWorker();
+    },
+
+    initAudioPlayerWorker: function () {
+        this.audioPlayerWorker();
     },
 
     runVoiceSynthesizer: function (msg, callback) {
@@ -211,16 +244,12 @@ var CM = {
         }
     },
 
-    playAudio: function (path) {
+    executeAudioPlayer: function (filename, callback) {
         var my = this;
         if (this.isUnMuted) {
-            my.blockSoundDetection();
-            var cmd = "mplayer -volume " + Config.audioVolume + " /home/root/git/intel-edison/audio/" + path;
+            var cmd = "mplayer -volume " + Config.audioVolume + " /home/root/git/intel-edison/audio/" + filename;
             my.debug("executing: " + cmd);
-            exec(cmd, function (err, out, code) {
-                my.debug("mplayer finished");
-                my.releaseSoundDetection();
-            });
+            exec(cmd, callback);
         }
     },
 
@@ -281,11 +310,11 @@ var CM = {
                     setTimeout(function () {
                         my.releaseSoundDetection();
                     }, 100);
-                    setTimeout(my.buzzerWorker, Config.buzzerBreakDuration);
+                    setTimeout(my.buzzerWorker, Config.buzzerWorkerInterval);
                 }, interval + 50);
             }
         } else {
-            setTimeout(this.buzzerWorker, Config.buzzerBreakDuration);
+            setTimeout(this.buzzerWorker, Config.buzzerWorkerInterval);
         }
     },
 
@@ -671,6 +700,7 @@ var CM = {
 
         this.slack.on('open', function () {
             console.log("Connected to " + my.slack.team.name + " as @" + my.slack.self.name);
+            my.beep(200);
         });
         this.slack.login();
     }
