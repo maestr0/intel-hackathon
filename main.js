@@ -76,10 +76,11 @@ var CM = {
                 channel.send(out);
             });
         } else if (trimmedMessage === Config.slack.commands.mute) {
-            this.say("I will shut up!");
+            this.writeMessage("Muted");
             this.isUnMuted = false;
         } else if (trimmedMessage === Config.slack.commands.unmute) {
             this.isUnMuted = true;
+            this.writeMessage("Unmuted");
             this.say("Cookies");
         } else if (trimmedMessage === Config.slack.commands.lunchLunch) {
             this.say("Lunch, lunch, lunch. Stop working, let's go and eat something!");
