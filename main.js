@@ -68,43 +68,43 @@ var CM = {
         this.log("work() ok!");
     },
 
-    processSlackMessage: function (trimmedMessage, removePrefix, startWith, channel) {
+    processSlackMessage: function (msg, removePrefix, startWith, channel) {
 
-        if (startWith(trimmedMessage, Config.slack.commands.execute)) {
-            var cmd = removePrefix(trimmedMessage, Config.slack.commands.execute);
+        if (startWith(msg, Config.slack.commands.execute)) {
+            var cmd = removePrefix(msg, Config.slack.commands.execute);
             exec(cmd, function (err, out, code) {
                 channel.send(out);
             });
-        } else if (trimmedMessage === Config.slack.commands.mute) {
+        } else if (msg === Config.slack.commands.mute) {
             this.writeMessage("Muted");
             this.isUnMuted = false;
-        } else if (trimmedMessage === Config.slack.commands.unmute) {
+        } else if (msg === Config.slack.commands.unmute) {
             this.isUnMuted = true;
             this.writeMessage("Unmuted");
             this.say("Cookies");
-        } else if (trimmedMessage === Config.slack.commands.lunchLunch) {
+        } else if (msg === Config.slack.commands.lunchLunch) {
             this.say("Lunch, lunch, lunch. Stop working, let's go and eat something!");
-        } else if (startWith(trimmedMessage, Config.slack.commands.audio)) {
-            var text = removePrefix(trimmedMessage, Config.slack.commands.audio).trim();
+        } else if (startWith(msg, Config.slack.commands.audio)) {
+            var text = removePrefix(msg, Config.slack.commands.audio).trim();
             if (text) {
                 this.audioQueue.push(text);
             } else {
                 this.listAudioFiles(channel);
             }
-        } else if (trimmedMessage === Config.slack.commands.help) {
+        } else if (msg === Config.slack.commands.help) {
             var commands = "";
             for (cmd in Config.slack.commands) {
                 commands += "\n" + Config.slack.commands[cmd];
             }
             channel.send("Available commands: " + commands);
-        } else if (startWith(trimmedMessage, Config.slack.commands.say)) {
-            var text = removePrefix(trimmedMessage, Config.slack.commands.say);
+        } else if (startWith(msg, Config.slack.commands.say)) {
+            var text = removePrefix(msg, Config.slack.commands.say);
             this.say(text);
-        } else if (startWith(trimmedMessage, Config.slack.commands.move)) {
+        } else if (startWith(msg, Config.slack.commands.move)) {
             channel.send("not implemented");
         }
         else {
-            channel.send("Got it!" + trimmedMessage);
+            channel.send("I don't know what you want ;( ");
         }
     },
 
