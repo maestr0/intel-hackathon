@@ -27,8 +27,8 @@
         "name": "blank-project.xdk"
       },
       "blank-project.xdke": {
-        "previousModTime": 1446265909000,
-        "modified": 1446265909000,
+        "previousModTime": 1446266959000,
+        "modified": 1446266959000,
         "seen": true,
         "name": "blank-project.xdke"
       },
@@ -57,8 +57,8 @@
         "name": "intel-hackathon.iml"
       },
       "main.js": {
-        "previousModTime": 1446266133000,
-        "modified": 1446266133000,
+        "previousModTime": 1446267246000,
+        "modified": 1446267246000,
         "seen": true,
         "name": "main.js"
       },
@@ -129,8 +129,8 @@
         "name": ".idea/vcs.xml"
       },
       ".idea/workspace.xml": {
-        "previousModTime": 1446265811000,
-        "modified": 1446265811000,
+        "previousModTime": 1446267250000,
+        "modified": 1446267250000,
         "seen": true,
         "name": ".idea/workspace.xml"
       },
@@ -159,8 +159,8 @@
         "name": ".idea/jsLibraryMappings.xml"
       },
       "slack_bot.js": {
-        "previousModTime": 1446002166000,
-        "modified": 1446002166000,
+        "previousModTime": 1446267179000,
+        "modified": 1446267179000,
         "seen": true,
         "name": "slack_bot.js"
       },
@@ -173,7 +173,10 @@
     },
     "boardFileStatus": {
       "main.js": {
-        "previousModTime": 1446266136829
+        "previousModTime": 1446267254146
+      },
+      "slack_bot.js": {
+        "previousModTime": 1446267254146
       }
     }
   }

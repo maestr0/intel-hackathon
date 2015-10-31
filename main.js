@@ -31,6 +31,7 @@ var Config = {
             move: "move ",
             help: "help",
             audio: "audio",
+            dance: "dance",
             lunchLunch: "lunch lunch",
             unmute: "unmute"
         }
@@ -81,6 +82,8 @@ var CM = {
         } else if (msg === Config.slack.commands.mute) {
             this.writeMessage("Muted");
             this.isUnMuted = false;
+        } else if (msg === Config.slack.commands.dance) {
+            this.dance();
         } else if (msg === Config.slack.commands.unmute) {
             this.isUnMuted = true;
             this.writeMessage("Unmuted");
@@ -308,6 +311,12 @@ var CM = {
     },
 
     slackMessageProcessor: function (message) {
+        this.debug({
+            "slack_message": message.text,
+            from: message.user,
+            channel: message.channel
+        });
+
         var makeMention = function (userId) {
             return '<@' + userId + '>: ';
         };
@@ -416,7 +425,7 @@ var CM = {
             line1 = line1 + " ";
         }
 
-        this.debug("write LCD msg:" + message);
+        this.debug("write LCD msg: " + message);
         that.screen.setCursor(0, 0);
         that.screen.write(line1);
         if (line1.length > 16) {
@@ -566,6 +575,7 @@ var CM = {
     },
 
     dance: function () {
+        this.blockSoundDetection();
         this.relay.turnOn();
         var my = this;
         this.body.angle(30);
@@ -708,6 +718,7 @@ var CM = {
                                                                                         my.head.angle(90);
                                                                                         setTimeout(function () {
                                                                                             my.relay.turnOff();
+                                                                                            my.releaseSoundDetection();
                                                                                         }, 1000);
                                                                                     }, 700);
                                                                                 }, 700);

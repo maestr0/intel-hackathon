@@ -35,6 +35,7 @@ slack.on('message', function (message) {
                 channel.send(out);
             });
         } else {
+            console.log(message);
             channel.send("Echo " + trimmedMessage);
         }
     }
