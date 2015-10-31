@@ -53,8 +53,7 @@ winston.add(winston.transports.Loggly, {
     isBulk: true,
     level: Config.logLevel
 });
-winston.remove(winston.transports.Console);
-winston.add(winston.transports.Console, {colorize: false});
+
 winston.add(winston.transports.File, {filename: 'cookie.log'});
 
 Cylon.config({
