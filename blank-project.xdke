@@ -27,8 +27,8 @@
         "name": "blank-project.xdk"
       },
       "blank-project.xdke": {
-        "previousModTime": 1446086442000,
-        "modified": 1446086442000,
+        "previousModTime": 1446265286000,
+        "modified": 1446265286000,
         "seen": true,
         "name": "blank-project.xdke"
       },
@@ -57,8 +57,8 @@
         "name": "intel-hackathon.iml"
       },
       "main.js": {
-        "previousModTime": 1446086675000,
-        "modified": 1446086675000,
+        "previousModTime": 1446265369000,
+        "modified": 1446265369000,
         "seen": true,
         "name": "main.js"
       },
@@ -69,8 +69,8 @@
         "name": "npm-debug.log"
       },
       "package.json": {
-        "previousModTime": 1446079824000,
-        "modified": 1446079824000,
+        "previousModTime": 1446256797000,
+        "modified": 1446256797000,
         "seen": true,
         "name": "package.json"
       },
@@ -129,8 +129,8 @@
         "name": ".idea/vcs.xml"
       },
       ".idea/workspace.xml": {
-        "previousModTime": 1446086682000,
-        "modified": 1446086682000,
+        "previousModTime": 1446265051000,
+        "modified": 1446265051000,
         "seen": true,
         "name": ".idea/workspace.xml"
       },
@@ -172,11 +172,8 @@
       }
     },
     "boardFileStatus": {
-      "intel-hackathon.iml": {
-        "previousModTime": 1446086687130
-      },
       "main.js": {
-        "previousModTime": 1446086687130
+        "previousModTime": 1446265373004
       }
     }
   }

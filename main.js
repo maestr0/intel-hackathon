@@ -4,7 +4,6 @@ var exec = require('exec-queue');
 var http = require('http');
 var Slack = require('slack-client');
 
-
 var Config = {
     name: "Cookie Monster",
     buzzerWorkerInterval: 200,
@@ -13,15 +12,16 @@ var Config = {
     soundDetectionBreakDuration: 5000,
     soundDetectionInterval: 500,
     voiceSynthesizerWorkerInterval: 500,
+    moveWorkerInterval: 500,
     audioWorkerInterval: 500,
     audioWorkerBreakDuration: 1000,
-    logger: true,
+    moveDuration: 5900,
     isUnMuted: true,
-    debug: true,
+    logLevel: 'debug',
     startAPI: false,
     audioVolume: 60,
     slack: {
-        slackToken: 'xoxb-13361221814-18d8zqhgNi9RuvPEaQdnygag',
+        slackToken: process.env.SLACK_TOKEN,
         autoReconnect: true,
         autoMark: true,
         commands: {
@@ -41,15 +41,37 @@ var Config = {
     ]
 };
 
+var winston = require('winston')
+require('winston-loggly');
+winston.level = Config.logLevel;
+
+winston.add(winston.transports.Loggly, {
+    token: process.env.LOGGY_TOKEN,
+    subdomain: "maestr0",
+    tags: ["cookie-monster"],
+    json: true,
+    isBulk: true,
+    level: Config.logLevel
+});
+winston.remove(winston.transports.Console);
+winston.add(winston.transports.Console, {colorize: false});
+winston.add(winston.transports.File, {filename: 'cookie.log'});
+
+Cylon.config({
+    logger: function (msg) {
+        winston.log("info", msg);
+    }
+});
+
 var CM = {
     speechQueue: [],
     buzzerQueue: [],
     audioQueue: [],
+    moveQueue: [],
     lcdQueue: [],
     detectSound: 0,
     isUnMuted: Config.isUnMuted,
     slack: new Slack(Config.slack.slackToken, Config.slack.autoReconnect, Config.slack.autoMark),
-
 
     work: function () {
         /* INIT  FUNCTION */
@@ -58,6 +80,7 @@ var CM = {
         this.bind();
         this.initVoiceSynthesizer();
         this.initBuzzerWorker();
+        this.initMoveWorker();
         this.initAudioPlayerWorker();
         this.initSlack();
 
@@ -65,7 +88,7 @@ var CM = {
         this.beep(200);
         this.beep(200);
 
-        this.log("work() ok!");
+        this.log("CM start ok! " + new Date());
     },
 
     processSlackMessage: function (msg, removePrefix, startWith, channel) {
@@ -101,7 +124,8 @@ var CM = {
             var text = removePrefix(msg, Config.slack.commands.say);
             this.say(text);
         } else if (startWith(msg, Config.slack.commands.move)) {
-            channel.send("not implemented");
+            var text = removePrefix(msg, Config.slack.commands.say);
+            this.moveQueue.push(text);
         }
         else {
             channel.send("I don't know what you want ;( ");
@@ -114,6 +138,43 @@ var CM = {
             channel.send(out);
         });
 
+    },
+
+    moveWorker: function () {
+        var my = this;
+        if (this.moveQueue.length !== 0) {
+            var msg = this.moveQueue.shift();
+            this.performMove(msg, function (err, out, code) {
+                setTimeout(my.moveWorker, Config.moveWorkerInterval);
+            });
+        } else {
+            setTimeout(my.moveWorker, Config.moveWorkerInterval);
+        }
+    },
+
+    performMove: function (command, callback) {
+        var my = this;
+        my.debug("Move " + command);
+        const moves = command.split(",");
+        if (moves && moves.length === 5) {
+            my.blockSoundDetection();
+            my.relay.turnOn();
+            my.debug(moves[0], moves[1], moves[2], moves[3], moves[4]);
+            this.head.angle(parseInt(moves[0]));
+            this.body.angle(parseInt(moves[1]));
+            this.leftHand.angle(parseInt(moves[2]));
+            this.rightHand.angle(parseInt(moves[3]));
+            setTimeout(function () {
+                my.relay.turnOff();
+            }, Config.moveDuration);
+            setTimeout(function () {
+                my.releaseSoundDetection();
+                callback();
+            }, Config.moveDuration + parseInt(moves[4]));
+        } else {
+            my.log("Incorrect command");
+            callback();
+        }
     },
 
     speechWorker: function () {
@@ -229,6 +290,10 @@ var CM = {
 
     },
 
+    initMoveWorker: function () {
+        this.moveWorker();
+    },
+
     initVoiceSynthesizer: function () {
         this.speechWorker();
     },
@@ -260,7 +325,6 @@ var CM = {
 
     blockSoundDetection: function () {
         this.detectSound++;
-        this.debug("block SD " + this.detectSound);
     },
 
     slackMessageProcessor: function (message) {
@@ -283,17 +347,18 @@ var CM = {
             return string.substr(prefix.length, string.length).trim();
         };
 
-        var channel = this.slack.getChannelGroupOrDMByID(message.channel);
-        var trimmedMessage = removePrefix(message.text, makeMention(this.slack.self.id));
+        if (message.text) {
+            var channel = this.slack.getChannelGroupOrDMByID(message.channel);
+            var trimmedMessage = removePrefix(message.text, makeMention(this.slack.self.id));
 
-        if (message.type === 'message' && isDirect(this.slack.self.id, message.text)) {
-            this.processSlackMessage(trimmedMessage, removePrefix, startWith, channel);
+            if (message.type === 'message' && isDirect(this.slack.self.id, message.text)) {
+                this.processSlackMessage(trimmedMessage, removePrefix, startWith, channel);
+            }
         }
     },
 
     releaseSoundDetection: function () {
         this.detectSound--;
-        this.debug("release SD " + this.detectSound);
     },
 
     buzzerWorker: function () {
@@ -357,26 +422,29 @@ var CM = {
     },
 
     debug: function (msg) {
-        if (Config.debug) {
-            console.log(new Date().toLocaleTimeString() + " " + msg);
-        }
+        winston.log('debug', msg);
     },
 
     log: function (msg) {
-        if (Config.logger) {
-            console.log(new Date().toLocaleTimeString() + " " + msg);
-        }
+        winston.log('info', msg);
     },
 
     writeMessage: function (message, color) {
         var that = this;
-        var str = message.toString();
-        while (str.length < 16) {
-            str = str + " ";
+        var line1 = message.toString();
+        while (line1.length < 16) {
+            line1 = line1 + " ";
         }
+
         this.debug("write LCD msg", message);
         that.screen.setCursor(0, 0);
-        that.screen.write(str);
+        that.screen.write(line1);
+        if (line1.length > 16) {
+            var line2 = line1.substring(16);
+            that.screen.setCursor(0, 1);
+            that.screen.write(line2);
+        }
+
         switch (color) {
             case "red":
                 that.screen.setColor(255, 0, 0);
@@ -696,11 +764,12 @@ var CM = {
         });
 
         this.slack.on('error', function (err) {
-            console.error("Slack Error", err);
+            winston.log('error', "Slack Error: " + err);
         });
 
         this.slack.on('open', function () {
-            console.log("Connected to " + my.slack.team.name + " as @" + my.slack.self.name);
+            my.log("Connected to " + my.slack.team.name + " as @" + my.slack.self.name);
+            my.writeMessage("Slack OK");
             my.beep(200);
         });
         this.slack.login();
@@ -716,5 +785,5 @@ if (Config.startAPI) {
 }
 
 Cylon.robot(CM)
-    .on('error', console.error)
+    .on('error', winston.error)
     .start();
