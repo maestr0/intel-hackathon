@@ -57,6 +57,7 @@ var CM = {
         this.led.turnOn();
         this.reset();
         this.bind();
+        this.initWifi();
         this.initVoiceSynthesizer();
         this.initBuzzerWorker();
         this.initMoveWorker();
@@ -82,12 +83,14 @@ var CM = {
         } else if (msg === Config.slack.commands.mute) {
             this.writeMessage("Muted");
             this.isUnMuted = false;
+            channel.send("I will shut up ;(");
         } else if (msg === Config.slack.commands.dance) {
             this.dance();
         } else if (msg === Config.slack.commands.unmute) {
             this.isUnMuted = true;
             this.writeMessage("Unmuted");
             this.say("Cookies");
+            channel.send(";)");
         } else if (msg === Config.slack.commands.lunchLunch) {
             this.say("Lunch, lunch, lunch. Stop working, let's go and eat something!");
         } else if (startWith(msg, Config.slack.commands.audio)) {
@@ -158,6 +161,15 @@ var CM = {
             my.log("Incorrect command");
             callback();
         }
+    },
+
+    initWifi: function () {
+        var my = this;
+        exec("ifconfig wlan0 up", function () {
+            exec("configure_edison --showWiFiIP", function (err, out, code) {
+                my.writeMessage("WIFI OK         IP " + out.trim());
+            })
+        });
     },
 
     speechWorker: function () {
@@ -419,33 +431,34 @@ var CM = {
     },
 
     writeMessage: function (message, color) {
-        var that = this;
-        var line1 = message.toString();
+        var my = this;
+        var line1 = message.toString().trim();
         while (line1.length < 16) {
             line1 = line1 + " ";
         }
 
         this.debug("write LCD msg: " + message);
-        that.screen.setCursor(0, 0);
-        that.screen.write(line1);
+        my.screen.clear();
+        my.screen.setCursor(0, 0);
+        my.screen.write(line1);
         if (line1.length > 16) {
             var line2 = line1.substring(16);
-            that.screen.setCursor(0, 1);
-            that.screen.write(line2);
+            my.screen.setCursor(1, 0);
+            my.screen.write(line2);
         }
 
         switch (color) {
             case "red":
-                that.screen.setColor(255, 0, 0);
+                my.screen.setColor(255, 0, 0);
                 break;
             case "green":
-                that.screen.setColor(0, 255, 0);
+                my.screen.setColor(0, 255, 0);
                 break;
             case "blue":
-                that.screen.setColor(0, 0, 255);
+                my.screen.setColor(0, 0, 255);
                 break;
             default:
-                that.screen.setColor(255, 255, 255);
+                my.screen.setColor(255, 255, 255);
                 break;
         }
     },
