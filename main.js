@@ -81,14 +81,14 @@ var CM = {
                 if (code) channel.send(code);
             });
         } else if (msg === Config.slack.commands.mute) {
-            this.writeMessage("Muted");
+            this.writeMessage("Muted", "red");
             this.isUnMuted = false;
             channel.send("I will shut up ;(");
         } else if (msg === Config.slack.commands.dance) {
             this.dance();
         } else if (msg === Config.slack.commands.unmute) {
             this.isUnMuted = true;
-            this.writeMessage("Unmuted");
+            this.writeMessage("Unmuted", "blue");
             this.say("Cookies");
             channel.send(";)");
         } else if (msg === Config.slack.commands.lunchLunch) {
@@ -167,7 +167,7 @@ var CM = {
         var my = this;
         exec("ifconfig wlan0 up", function () {
             exec("configure_edison --showWiFiIP", function (err, out, code) {
-                my.writeMessage("WIFI OK         IP " + out.trim());
+                my.writeMessage("WIFI OK         IP " + out.trim(), "green");
             })
         });
     },
@@ -439,6 +439,7 @@ var CM = {
 
         this.debug("write LCD msg: " + message);
         my.screen.clear();
+        my.screen.home();
         my.screen.setCursor(0, 0);
         my.screen.write(line1);
         if (line1.length > 16) {
@@ -773,7 +774,7 @@ var CM = {
 
         this.slack.on('open', function () {
             my.log("Connected to " + my.slack.team.name + " as @" + my.slack.self.name);
-            my.writeMessage("Slack OK");
+            my.writeMessage("Slack OK", "red");
             my.beep(200);
         });
         this.slack.login();
