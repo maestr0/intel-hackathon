@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="80fbdb14-c850-485e-a595-8adcb3114161" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/blank-project.xdke" afterPath="$PROJECT_DIR$/blank-project.xdke" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.js" afterPath="$PROJECT_DIR$/main.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
@@ -32,11 +33,9 @@
       <file leaf-file-name="main.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.67209774" vertical-offset="165" max-vertical-offset="9360">
-              <caret line="55" column="0" selection-start-line="55" selection-start-column="0" selection-end-line="55" selection-end-column="0" />
-              <folding>
-                <element signature="e#17899#27599#0" expanded="false" />
-              </folding>
+            <state vertical-scroll-proportion="0.45824847" vertical-offset="5820" max-vertical-offset="11955">
+              <caret line="418" column="47" selection-start-line="418" selection-start-column="47" selection-end-line="418" selection-end-column="47" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -774,7 +773,7 @@
       <workItem from="1432262658168" duration="374000" />
       <workItem from="1445911122446" duration="14359000" />
       <workItem from="1445995571473" duration="21222000" />
-      <workItem from="1446251168722" duration="6592000" />
+      <workItem from="1446251168722" duration="6987000" />
     </task>
     <task id="LOCAL-00001" summary="fixed the issue with buzzing servos">
       <created>1431831940181</created>
@@ -902,11 +901,17 @@
       <option name="project" value="LOCAL" />
       <updated>1446265396139</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="added Winston logger">
+      <created>1446265421802</created>
+      <option name="number" value="00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1446265421802</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="44350000" />
+    <option name="totallyTimeSpent" value="44745000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1920" height="1080" extended-state="0" />
@@ -984,9 +989,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="9030">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#17899#27599#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1010,9 +1013,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="7320">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#17899#27599#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1020,9 +1021,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="8340">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#17899#27599#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1030,9 +1029,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="7575">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#17899#27599#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1040,9 +1037,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="6930">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#17899#27599#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1165,11 +1160,9 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.67209774" vertical-offset="165" max-vertical-offset="9360">
-          <caret line="55" column="0" selection-start-line="55" selection-start-column="0" selection-end-line="55" selection-end-column="0" />
-          <folding>
-            <element signature="e#17899#27599#0" expanded="false" />
-          </folding>
+        <state vertical-scroll-proportion="0.45824847" vertical-offset="5820" max-vertical-offset="11955">
+          <caret line="418" column="47" selection-start-line="418" selection-start-column="47" selection-end-line="418" selection-end-column="47" />
+          <folding />
         </state>
       </provider>
     </entry>

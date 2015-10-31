@@ -41,27 +41,6 @@ var Config = {
     ]
 };
 
-var winston = require('winston')
-require('winston-loggly');
-winston.level = Config.logLevel;
-
-winston.add(winston.transports.Loggly, {
-    token: process.env.LOGGY_TOKEN,
-    subdomain: "maestr0",
-    tags: ["cookie-monster"],
-    json: true,
-    isBulk: true,
-    level: Config.logLevel
-});
-
-winston.add(winston.transports.File, {filename: 'cookie.log'});
-
-Cylon.config({
-    logger: function (msg) {
-        winston.log("info", msg);
-    }
-});
-
 var CM = {
     speechQueue: [],
     buzzerQueue: [],
@@ -95,7 +74,9 @@ var CM = {
         if (startWith(msg, Config.slack.commands.execute)) {
             var cmd = removePrefix(msg, Config.slack.commands.execute);
             exec(cmd, function (err, out, code) {
-                channel.send(out);
+                if (out) channel.send(out);
+                if (err) channel.send(err);
+                if (code) channel.send(code);
             });
         } else if (msg === Config.slack.commands.mute) {
             this.writeMessage("Muted");
@@ -235,7 +216,7 @@ var CM = {
 
         my.buttonRight.on('push', function () {
             my.beep();
-            my.audioQueue.push("vomiting-03.wav");
+            my.audioQueue.push("cookie!.wav");
         });
 
         //var ignoreProximity = false;
@@ -435,7 +416,7 @@ var CM = {
             line1 = line1 + " ";
         }
 
-        this.debug("write LCD msg", message);
+        this.debug("write LCD msg:" + message);
         that.screen.setCursor(0, 0);
         that.screen.write(line1);
         if (line1.length > 16) {
@@ -763,7 +744,7 @@ var CM = {
         });
 
         this.slack.on('error', function (err) {
-            winston.log('error', "Slack Error: " + err);
+            winston.log('error', "Slack Error", err);
         });
 
         this.slack.on('open', function () {
@@ -774,6 +755,28 @@ var CM = {
         this.slack.login();
     }
 };
+
+var winston = require('winston')
+require('winston-loggly');
+winston.level = Config.logLevel;
+
+winston.add(winston.transports.Loggly, {
+    token: process.env.LOGGY_TOKEN,
+    subdomain: "maestr0",
+    tags: ["cookie-monster"],
+    json: true,
+    isBulk: true,
+    level: Config.logLevel
+});
+
+winston.add(winston.transports.File, {filename: 'cookie.log'});
+
+Cylon.config({
+    logger: function (msg) {
+        winston.log("info", msg);
+    }
+});
+
 
 if (Config.startAPI) {
 
