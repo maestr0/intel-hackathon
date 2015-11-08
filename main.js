@@ -20,6 +20,18 @@ var Config = {
     logLevel: 'debug',
     startAPI: false,
     audioVolume: 60,
+    servos: {
+        "pins": {
+            "head": 15,
+            "body": 3,
+            "leftHand": 0,
+            "rightHand": 11
+        },
+        "ranges": {
+            "min": 50,
+            "max": 500
+        }
+    },
     slack: {
         slackToken: process.env.SLACK_TOKEN,
         autoReconnect: true,
@@ -53,11 +65,10 @@ var CM = {
     slack: new Slack(Config.slack.slackToken, Config.slack.autoReconnect, Config.slack.autoMark),
 
     work: function () {
-        /* INIT  FUNCTION */
         this.led.turnOn();
-        this.reset();
         this.bind();
         this.initWifi();
+        this.initServos();
         this.initVoiceSynthesizer();
         this.initBuzzerWorker();
         this.initMoveWorker();
@@ -69,6 +80,17 @@ var CM = {
         this.beep(200);
 
         this.log("CM start ok! " + new Date());
+        this.writeMessage("start OK", "blue");
+    },
+
+    initServos: function () {
+        // set the frequency to 50hz
+        this.pca9685.setPWMFreq(50);
+        // center servos
+        this.pca9685.setPWM(Config.servos.pins.body, 0, min);
+        this.pca9685.setPWM(Config.servos.pins.head, 0, min);
+        this.pca9685.setPWM(Config.servos.pins.leftHand, 0, min);
+        this.pca9685.setPWM(Config.servos.pins.rightHand, 0, min);
     },
 
     processSlackMessage: function (msg, removePrefix, startWith, channel) {
@@ -144,15 +166,11 @@ var CM = {
         const moves = command.split(",");
         if (moves && moves.length === 5) {
             my.blockSoundDetection();
-            my.relay.turnOn();
             my.debug(moves[0], moves[1], moves[2], moves[3], moves[4]);
-            this.head.angle(parseInt(moves[0]));
-            this.body.angle(parseInt(moves[1]));
-            this.leftHand.angle(parseInt(moves[2]));
-            this.rightHand.angle(parseInt(moves[3]));
-            setTimeout(function () {
-                my.relay.turnOff();
-            }, Config.moveDuration);
+            //this.head.angle(parseInt(moves[0]));
+            //this.body.angle(parseInt(moves[1]));
+            //this.leftHand.angle(parseInt(moves[2]));
+            //this.rightHand.angle(parseInt(moves[3]));
             setTimeout(function () {
                 my.releaseSoundDetection();
                 callback();
@@ -165,10 +183,12 @@ var CM = {
 
     initWifi: function () {
         var my = this;
-        exec("ifconfig wlan0 up", function () {
-            exec("configure_edison --showWiFiIP", function (err, out, code) {
-                my.writeMessage("WIFI OK         IP " + out.trim(), "green");
-            })
+        after((10).seconds(), function () {
+            exec("ifconfig wlan0 up", function () {
+                exec("configure_edison --showWiFiIP", function (err, out, code) {
+                    my.writeMessage("WIFI OK         IP " + out.trim(), "green");
+                });
+            });
         });
     },
 
@@ -234,55 +254,7 @@ var CM = {
             my.audioQueue.push("cookie!.wav");
         });
 
-        //var ignoreProximity = false;
         //my.proximity.on('lowerLimit', function (val) {
-        //    if (!ignoreProximity) {
-        //        ignoreProximity = true;
-        //        console.log("\nproximity " + val)
-        //        my.speechQueue.push("Cookie");
-        //        count = count + 1;
-        //        console.log("count", count);
-        //        my.relay.turnOn();
-        //
-        //        setTimeout(function () {
-        //            my.rightHand.angle(180);
-        //            my.leftHand.angle(0);
-        //            my.head.angle(0);
-        //            my.body.angle(0);
-        //
-        //            setTimeout(function () {
-        //                my.body.angle(90);
-        //                my.rightHand.angle(90);
-        //                my.leftHand.angle(90);
-        //                my.head.angle(60);
-        //                my.body.angle(90);
-        //
-        //                setTimeout(function () {
-        //                    my.body.angle(90);
-        //                    my.rightHand.angle(0);
-        //                    my.leftHand.angle(180);
-        //                    my.head.angle(120);
-        //                    my.body.angle(180);
-        //
-        //                    setTimeout(function () {
-        //                        my.rightHand.angle(90);
-        //                        my.leftHand.angle(90);
-        //                        my.head.angle(180);
-        //                        my.body.angle(180);
-        //                        setTimeout(function () {
-        //                            my.relay.turnOff();
-        //                        }, 1000);
-        //                    }, 700);
-        //                }, 700);
-        //            }, 700);
-        //        }, 700);
-        //
-        //        setTimeout(function () {
-        //            ignoreProximity = false;
-        //        }, 5000);
-        //    }
-        //});
-
     },
 
     initMoveWorker: function () {
@@ -405,19 +377,6 @@ var CM = {
         }, Config.soundDetectionBreakDuration);
     },
 
-    reset: function () {
-        var that = this;
-        this.screen.clear();
-        this.relay.turnOn();
-        this.body.angle(90);
-        this.head.angle(90);
-        this.rightHand.angle(90);
-        this.leftHand.angle(90);
-        setTimeout(function () {
-            that.relay.turnOff();
-        }, 1000);
-    },
-
     clearLCD: function () {
         this.screen.clear();
     },
@@ -439,8 +398,8 @@ var CM = {
 
         this.debug("write LCD msg: " + message);
         my.screen.clear();
-        my.screen.home();
         my.screen.setCursor(0, 0);
+        my.screen.home();
         my.screen.write(line1);
         if (line1.length > 16) {
             var line2 = line1.substring(16);
@@ -464,24 +423,6 @@ var CM = {
         }
     },
 
-    move: function (angle, servoName) {
-        var that = this;
-        this.relay.turnOn();
-        this[servoName].angle(angle);
-        setTimeout(function () {
-            that.relay.turnOff();
-        }, 1000);
-        return "moving " + servoName + " @ " + angle;
-    },
-
-    commands: function () {
-        return {
-            say: this.say,
-            move: this.move,
-            dance: this.dance
-        };
-    },
-
     name: Config.name,
 
     sayings: Config.sayings,
@@ -493,66 +434,9 @@ var CM = {
     },
 
     devices: {
-        head: {
-            driver: "servo",
-            pin: 3,
-            freq: 50,
-            // pulseWidth in MicroSeconds as per servo spec sheet
-            // e.g. http://www.servodatabase.com/servo/towerpro/sg90
-            pulseWidth: {
-                min: 500,
-                max: 2400
-            }
-            //                limits: {
-            //                    bottom: 20,
-            //                    top: 160
-            //                }
-        },
-        leftHand: {
-            driver: "servo",
-            pin: 5,
-            freq: 50,
-            // pulseWidth in MicroSeconds as per servo spec sheet
-            // e.g. http://www.servodatabase.com/servo/towerpro/sg90
-            pulseWidth: {
-                min: 500,
-                max: 2400
-            }
-        },
-        rightHand: {
-            driver: "servo",
-            pin: 6,
-            freq: 50,
-            // pulseWidth in MicroSeconds as per servo spec sheet
-            // e.g. http://www.servodatabase.com/servo/towerpro/sg90
-            pulseWidth: {
-                min: 500,
-                max: 2400
-            }
-        },
-        body: {
-            driver: "servo",
-            pin: 9,
-            freq: 50,
-            // pulseWidth in MicroSeconds as per servo spec sheet
-            // e.g. http://www.servodata\\base.com/servo/towerpro/sg90
-            pulseWidth: {
-                min: 500,
-                max: 2400
-            }
-            //                ,
-            //                limits: {
-            //                    bottom: 20,
-            //                    top: 160
-            //                }
-        },
         buttonLeft: {
             driver: 'button',
             pin: 2
-        },
-        relay: {
-            driver: 'led',
-            pin: 4
         },
         buzzer: {
             driver: "direct-pin",
@@ -567,7 +451,6 @@ var CM = {
             driver: 'led',
             pin: 13
         },
-
         proximity: {
             driver: 'analog-sensor',
             pin: 0,
@@ -581,7 +464,9 @@ var CM = {
             lowerLimit: 700,
             upperLimit: 900
         },
-
+        servos: {
+            driver: 'pca9685'
+        },
         screen: {
             driver: "upm-jhd1313m1",
             connection: "edison"
@@ -590,176 +475,7 @@ var CM = {
 
     dance: function () {
         this.blockSoundDetection();
-        this.relay.turnOn();
-        var my = this;
-        this.body.angle(30);
-        this.rightHand.angle(0);
-        this.leftHand.angle(180);
-        this.head.angle(180);
-
-        setTimeout(function () {
-            my.body.angle(90);
-            my.rightHand.angle(90);
-            my.leftHand.angle(90);
-            my.head.angle(90);
-
-            setTimeout(function () {
-                my.body.angle(90);
-                my.rightHand.angle(60);
-                my.leftHand.angle(20);
-                my.head.angle(45);
-
-                setTimeout(function () {
-                    my.body.angle(90);
-                    my.rightHand.angle(90);
-                    my.leftHand.angle(90);
-                    my.head.angle(90);
-
-                    setTimeout(function () {
-                        my.body.angle(90);
-                        my.rightHand.angle(90);
-                        my.leftHand.angle(90);
-                        my.head.angle(90);
-
-                        setTimeout(function () {
-                            my.body.angle(90);
-                            my.rightHand.angle(60);
-                            my.leftHand.angle(20);
-                            my.head.angle(45);
-
-                            setTimeout(function () {
-                                my.body.angle(90);
-                                my.rightHand.angle(90);
-                                my.leftHand.angle(90);
-                                my.head.angle(90);
-
-                                setTimeout(function () {
-                                    my.body.angle(180);
-                                    my.rightHand.angle(180);
-                                    my.leftHand.angle(0);
-                                    my.head.angle(0);
-
-                                    setTimeout(function () {
-                                        my.body.angle(120);
-                                        my.rightHand.angle(180);
-                                        my.leftHand.angle(0);
-                                        my.head.angle(60);
-                                    }, 700);
-
-                                    setTimeout(function () {
-                                        my.body.angle(60);
-                                        my.rightHand.angle(180);
-                                        my.leftHand.angle(0);
-                                        my.head.angle(120);
-
-                                        setTimeout(function () {
-                                            my.body.angle(0);
-                                            my.rightHand.angle(180);
-                                            my.leftHand.angle(0);
-                                            my.head.angle(0);
-
-                                            setTimeout(function () {
-                                                my.body.angle(90);
-                                                my.rightHand.angle(90);
-                                                my.leftHand.angle(120);
-                                                my.head.angle(90);
-
-                                                setTimeout(function () {
-                                                    my.body.angle(90);
-                                                    my.rightHand.angle(90);
-                                                    my.leftHand.angle(90);
-                                                    my.head.angle(90);
-
-                                                    setTimeout(function () {
-                                                        my.body.angle(90);
-                                                        my.rightHand.angle(60);
-                                                        my.leftHand.angle(20);
-                                                        my.head.angle(45);
-
-                                                        setTimeout(function () {
-                                                            my.body.angle(90);
-                                                            my.rightHand.angle(90);
-                                                            my.leftHand.angle(90);
-                                                            my.head.angle(90);
-
-                                                            setTimeout(function () {
-                                                                my.body.angle(90);
-                                                                my.rightHand.angle(90);
-                                                                my.leftHand.angle(90);
-                                                                my.head.angle(90);
-
-                                                                setTimeout(function () {
-                                                                    my.body.angle(90);
-                                                                    my.rightHand.angle(60);
-                                                                    my.leftHand.angle(20);
-                                                                    my.head.angle(45);
-
-                                                                    setTimeout(function () {
-                                                                        my.body.angle(90);
-                                                                        my.rightHand.angle(90);
-                                                                        my.leftHand.angle(90);
-                                                                        my.head.angle(90);
-
-                                                                        setTimeout(function () {
-                                                                            my.body.angle(180);
-                                                                            my.rightHand.angle(180);
-                                                                            my.leftHand.angle(0);
-                                                                            my.head.angle(0);
-
-                                                                            setTimeout(function () {
-                                                                                my.body.angle(120);
-                                                                                my.rightHand.angle(180);
-                                                                                my.leftHand.angle(0);
-                                                                                my.head.angle(60);
-                                                                            }, 700);
-
-                                                                            setTimeout(function () {
-                                                                                my.body.angle(60);
-                                                                                my.rightHand.angle(180);
-                                                                                my.leftHand.angle(0);
-                                                                                my.head.angle(120);
-
-                                                                                setTimeout(function () {
-                                                                                    my.body.angle(0);
-                                                                                    my.rightHand.angle(180);
-                                                                                    my.leftHand.angle(0);
-                                                                                    my.head.angle(0);
-
-                                                                                    setTimeout(function () {
-                                                                                        my.body.angle(90);
-                                                                                        my.rightHand.angle(90);
-                                                                                        my.leftHand.angle(120);
-                                                                                        my.head.angle(90);
-                                                                                        setTimeout(function () {
-                                                                                            my.relay.turnOff();
-                                                                                            my.releaseSoundDetection();
-                                                                                        }, 1000);
-                                                                                    }, 700);
-                                                                                }, 700);
-                                                                            }, 700);
-                                                                        }, 700);
-
-                                                                    }, 700);
-                                                                }, 700);
-
-                                                            }, 700);
-                                                        }, 700);
-                                                    }, 700);
-
-                                                }, 700);
-                                            }, 700);
-                                        }, 700);
-                                    }, 700);
-                                }, 700);
-
-                            }, 700);
-                        }, 700);
-
-                    }, 700);
-                }, 700);
-            }, 700);
-
-        }, 700);
+        this.log("Dance not implemented");
     },
 
     initSlack: function () {
