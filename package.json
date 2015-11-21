@@ -1,8 +1,8 @@
 {
   "name": "cookie-monster",
-  "description": "",
+  "description": "Cookie Monster robot",
   "version": "0.0.1",
-  "main": "main.js",
+  "main": "cm_api.js",
   "engines": {
     "node": ">=0.10.0"
   },
@@ -14,6 +14,10 @@
       "cylon-intel-iot": "latest",
       "cylon-i2c": "latest",
       "http": "latest",
-      "twit": "latest"
+      "twit": "latest",
+      "exec-queue": "latest",
+      "winston": "latest",
+      "winston-loggly": "latest",
+      "slack-client": "latest"
   }
 }

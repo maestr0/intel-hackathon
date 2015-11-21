@@ -9,8 +9,8 @@
   "iot-tab": {
     "fileStatus": {
       ".gitignore": {
-        "previousModTime": 1431195501000,
-        "modified": 1431195501000,
+        "previousModTime": 1445920699000,
+        "modified": 1445920699000,
         "seen": true,
         "name": ".gitignore"
       },
@@ -27,8 +27,8 @@
         "name": "blank-project.xdk"
       },
       "blank-project.xdke": {
-        "previousModTime": 1445912476000,
-        "modified": 1445912476000,
+        "previousModTime": 1448085667000,
+        "modified": 1448085667000,
         "seen": true,
         "name": "blank-project.xdke"
       },
@@ -45,20 +45,20 @@
         "name": "blank-project_1.2.0.xdke_bak"
       },
       "cm_api.js": {
-        "previousModTime": 1431213048000,
-        "modified": 1431213048000,
+        "previousModTime": 1445920843000,
+        "modified": 1445920843000,
         "seen": true,
         "name": "cm_api.js"
       },
       "intel-hackathon.iml": {
-        "previousModTime": 1431831851000,
-        "modified": 1431831851000,
+        "previousModTime": 1446086532000,
+        "modified": 1446086532000,
         "seen": true,
         "name": "intel-hackathon.iml"
       },
       "main.js": {
-        "previousModTime": 1445912635000,
-        "modified": 1445912635000,
+        "previousModTime": 1448085752000,
+        "modified": 1448085752000,
         "seen": true,
         "name": "main.js"
       },
@@ -69,8 +69,8 @@
         "name": "npm-debug.log"
       },
       "package.json": {
-        "previousModTime": 1445912072000,
-        "modified": 1445912072000,
+        "previousModTime": 1446518860000,
+        "modified": 1446518860000,
         "seen": true,
         "name": "package.json"
       },
@@ -129,8 +129,8 @@
         "name": ".idea/vcs.xml"
       },
       ".idea/workspace.xml": {
-        "previousModTime": 1445912639000,
-        "modified": 1445912639000,
+        "previousModTime": 1447024112000,
+        "modified": 1447024112000,
         "seen": true,
         "name": ".idea/workspace.xml"
       },
@@ -151,11 +151,29 @@
         "modified": 1445907308000,
         "seen": true,
         "name": "xdk/project-info.json"
+      },
+      ".idea/jsLibraryMappings.xml": {
+        "previousModTime": 1445995591000,
+        "modified": 1445995591000,
+        "seen": true,
+        "name": ".idea/jsLibraryMappings.xml"
+      },
+      "slack_bot.js": {
+        "previousModTime": 1446267179000,
+        "modified": 1446267179000,
+        "seen": true,
+        "name": "slack_bot.js"
+      },
+      ".idea/libraries/intel_hackathon_node_modules.xml": {
+        "previousModTime": 1445995591000,
+        "modified": 1445995591000,
+        "seen": true,
+        "name": ".idea/libraries/intel_hackathon_node_modules.xml"
       }
     },
     "boardFileStatus": {
       "main.js": {
-        "previousModTime": 1445912674306
+        "previousModTime": 1448085757130
       }
     }
   }

@@ -1,214 +1,430 @@
 var Cylon = require('cylon');
-var sys = require('sys')
-var exec = require('child_process').exec;
+var sys = require('sys');
+var exec = require('exec-queue');
 var http = require('http');
+var Slack = require('slack-client');
 
-function puts(error, stdout, stderr) {
-    //        sys.puts(stdout);
-    //        sys.puts(error);
-    //        sys.puts(stderr);
+var Config = {
+    name: "Cookie Monster",
+    buzzerWorkerInterval: 200,
+    buzzerDefaultLength: 200,
+    soundDetectionThreshold: 750,
+    soundDetectionBreakDuration: 5000,
+    soundDetectionInterval: 500,
+    voiceSynthesizerWorkerInterval: 500,
+    moveWorkerInterval: 500,
+    audioWorkerInterval: 500,
+    audioWorkerBreakDuration: 1000,
+    moveDuration: 5900,
+    isUnMuted: true,
+    logLevel: 'debug',
+    startAPI: false,
+    audioVolume: 60,
+    servos: {
+        "pins": {
+            "head": 15,
+            "body": 3,
+            "leftHand": 0,
+            "rightHand": 11
+        },
+        "ranges": {
+            "min": 150,
+            "max": 600
+        }
+    },
+    slack: {
+        slackToken: process.env.SLACK_TOKEN,
+        autoReconnect: true,
+        autoMark: true,
+        commands: {
+            execute: "execute ",
+            mute: "mute",
+            say: "say ",
+            move: "move ",
+            help: "help",
+            audio: "audio",
+            dance: "dance",
+            lunchLunch: "lunch lunch",
+            unmute: "unmute"
+        }
+    },
+    sayings: ["I would do anything for a cookie.",
+        "Lunch time. Lunch alert. Lunch alert",
+        "C is for Cookie and cookie is for me!"
+    ]
 };
-
-
-var count = 0;
 
 var CM = {
     speechQueue: [],
+    buzzerQueue: [],
+    audioQueue: [],
+    moveQueue: [],
+    lcdQueue: [],
+    detectSound: 0,
+    isUnMuted: Config.isUnMuted,
+    slack: new Slack(Config.slack.slackToken, Config.slack.autoReconnect, Config.slack.autoMark),
 
-    work: function (my) {
-        /* MAIN ENTRY FUNCTION */
+    work: function () {
         this.led.turnOn();
-        //my.initRemoteCommandReceiver();
-        this.reset();
-        my.bind();
-        //setTimeout(this.ttsWorker, 500);
-        console.log("I'm alive!");
+        this.bind();
+        this.initWifi();
+        this.initServos();
+        this.initVoiceSynthesizer();
+        this.initBuzzerWorker();
+        this.initMoveWorker();
+        this.initAudioPlayerWorker();
+        this.initSlack();
+
+        this.beep(700);
+        this.beep(200);
+        this.beep(200);
+
+        this.log("CM start ok! " + new Date());
+        this.writeMessage("start OK", "blue");
+    },
+
+    initServos: function () {
+        // set the frequency to 50hz
+        this.servos.setPWMFreq(50);
+        var position = (50).fromScale(0, 100).toScale(Config.servos.ranges.min, Config.servos.ranges.max);
+        // center servos
+        this.servos.setPWM(Config.servos.pins.body, 0, position);
+        this.servos.setPWM(Config.servos.pins.head, 0, position);
+        this.servos.setPWM(Config.servos.pins.leftHand, 0, position);
+        this.servos.setPWM(Config.servos.pins.rightHand, 0, position);
+    },
+
+    processSlackMessage: function (msg, removePrefix, startWith, channel) {
+
+        if (startWith(msg, Config.slack.commands.execute)) {
+            var cmd = removePrefix(msg, Config.slack.commands.execute);
+            exec(cmd, function (err, out, code) {
+                if (out) channel.send(out);
+                if (err) channel.send(err);
+                if (code) channel.send(code);
+            });
+        } else if (msg === Config.slack.commands.mute) {
+            this.writeMessage("Muted", "red");
+            this.isUnMuted = false;
+            channel.send("I will shut up ;(");
+        } else if (msg === Config.slack.commands.dance) {
+            this.dance();
+        } else if (msg === Config.slack.commands.unmute) {
+            this.isUnMuted = true;
+            this.writeMessage("Unmuted", "blue");
+            this.say("Cookies");
+            channel.send(";)");
+        } else if (msg === Config.slack.commands.lunchLunch) {
+            this.say("Lunch, lunch, lunch. Stop working, let's go and eat something!");
+        } else if (startWith(msg, Config.slack.commands.audio)) {
+            var text = removePrefix(msg, Config.slack.commands.audio).trim();
+            if (text) {
+                this.audioQueue.push(text);
+            } else {
+                this.listAudioFiles(channel);
+            }
+        } else if (msg === Config.slack.commands.help) {
+            var commands = "";
+            for (cmd in Config.slack.commands) {
+                commands += "\n" + Config.slack.commands[cmd];
+            }
+            channel.send("Available commands: " + commands);
+        } else if (startWith(msg, Config.slack.commands.say)) {
+            var text = removePrefix(msg, Config.slack.commands.say);
+            this.say(text);
+        } else if (startWith(msg, Config.slack.commands.move)) {
+            var text = removePrefix(msg, Config.slack.commands.say);
+            this.moveQueue.push(text);
+        }
+        else {
+            channel.send("I don't know what you want ;( ");
+        }
+    },
+
+    listAudioFiles: function (channel) {
+        var cmd = "ls /home/root/git/intel-edison/audio"
+        exec(cmd, function (err, out, code) {
+            channel.send(out);
+        });
+
+    },
+
+    moveWorker: function () {
+        var my = this;
+        if (this.moveQueue.length !== 0) {
+            var msg = this.moveQueue.shift();
+            this.performMove(msg, function (err, out, code) {
+                setTimeout(my.moveWorker, Config.moveWorkerInterval);
+            });
+        } else {
+            setTimeout(my.moveWorker, Config.moveWorkerInterval);
+        }
+    },
+
+    performMove: function (command, callback) {
+        var my = this;
+        my.debug("Move " + command);
+        const moves = command.split(",");
+        if (moves && moves.length === 5) {
+            my.blockSoundDetection();
+            my.debug(moves[0], moves[1], moves[2], moves[3], moves[4]);
+            //this.head.angle(parseInt(moves[0]));
+            //this.body.angle(parseInt(moves[1]));
+            //this.leftHand.angle(parseInt(moves[2]));
+            //this.rightHand.angle(parseInt(moves[3]));
+            setTimeout(function () {
+                my.releaseSoundDetection();
+                callback();
+            }, Config.moveDuration + parseInt(moves[4]));
+        } else {
+            my.log("Incorrect command");
+            callback();
+        }
+    },
+
+    initWifi: function () {
+        var my = this;
+        after((10).seconds(), function () {
+            exec("configure_edison --showWiFiIP", function (err, out, code) {
+                my.writeMessage("WIFI OK         IP " + out.trim(), "green");
+            });
+        });
+    },
+
+    speechWorker: function () {
+        var my = this;
+        this.led.turnOff();
+        if (this.speechQueue.length !== 0) {
+            this.blockSoundDetection();
+            var msg = this.speechQueue.shift();
+            this.led.turnOn();
+            this.runVoiceSynthesizer(msg, function (err, out, code) {
+                my.releaseSoundDetection();
+                setTimeout(my.speechWorker, Config.voiceSynthesizerWorkerInterval);
+            });
+        } else {
+            setTimeout(my.speechWorker, Config.voiceSynthesizerWorkerInterval);
+        }
+    },
+
+    audioPlayerWorker: function () {
+        var my = this;
+        if (this.audioQueue.length !== 0) {
+            this.blockSoundDetection();
+            var audioFile = this.audioQueue.shift();
+            this.executeAudioPlayer(audioFile, function (err, out, code) {
+                my.releaseSoundDetection();
+                setTimeout(my.audioPlayerWorker, Config.audioWorkerInterval);
+            });
+        } else {
+            setTimeout(my.audioPlayerWorker, Config.audioWorkerInterval);
+        }
     },
 
     bind: function () {
         var my = this;
-        //var ignoreSoundDetection = false;
-        //my.sound.on('analogRead', function (val) {
-        //    if (!my.ignoreSoundDetection) {
-        //        my.ignoreSoundDetection = true;
-        //        my.detectSound(val);
-        //        console.log("sound detection val=" + val);
-        //        setTimeout(function () {
-        //            my.ignoreSoundDetection = false;
-        //        }, 1000);
-        //    }
-        //});
+        this.ignoreSoundDetection = false;
+        my.sound.on('analogRead', function (amplitude) {
+            if (my.ignoreSoundDetection === false && (amplitude > Config.soundDetectionThreshold) && my.detectSound < 1 && my.isUnMuted) {
+                my.ignoreSoundDetection = true;
+                my.debug("sound amplitude = " + amplitude);
+                my.soundDetected();
+                setTimeout(function () {
+                    my.debug("reset ignoreSoundDetection");
+                    my.ignoreSoundDetection = false;
+                }, Config.soundDetectionBreakDuration);
+            } else {
+                my.ignoreSoundDetection = true;
+                setTimeout(function () {
+                    my.ignoreSoundDetection = false;
+                }, Config.soundDetectionInterval);
+            }
+        });
 
         my.buttonLeft.on('push', function () {
             var item = my.sayings[Math.floor(Math.random() * my.sayings.length)];
+            my.beep();
+            my.debug("left button pressed say()");
             my.say(item);
         });
 
         my.buttonRight.on('push', function () {
-            var cmd = "mplayer -volume 60 /home/root/git/intel-edison/vomiting-03.wav";
-            console.log("executing", cmd);
-            exec(cmd, puts);
+            my.beep();
+            my.audioQueue.push("cookie!.wav");
         });
 
-        //var ignoreProximity = false;
         //my.proximity.on('lowerLimit', function (val) {
-        //    if (!ignoreProximity) {
-        //        ignoreProximity = true;
-        //        console.log("\nproximity " + val)
-        //        my.speechQueue.push("Cookie");
-        //        count = count + 1;
-        //        console.log("count", count);
-        //        my.relay.turnOn();
-        //
-        //        setTimeout(function () {
-        //            my.rightHand.angle(180);
-        //            my.leftHand.angle(0);
-        //            my.head.angle(0);
-        //            my.body.angle(0);
-        //
-        //            setTimeout(function () {
-        //                my.body.angle(90);
-        //                my.rightHand.angle(90);
-        //                my.leftHand.angle(90);
-        //                my.head.angle(60);
-        //                my.body.angle(90);
-        //
-        //                setTimeout(function () {
-        //                    my.body.angle(90);
-        //                    my.rightHand.angle(0);
-        //                    my.leftHand.angle(180);
-        //                    my.head.angle(120);
-        //                    my.body.angle(180);
-        //
-        //                    setTimeout(function () {
-        //                        my.rightHand.angle(90);
-        //                        my.leftHand.angle(90);
-        //                        my.head.angle(180);
-        //                        my.body.angle(180);
-        //                        setTimeout(function () {
-        //                            my.relay.turnOff();
-        //                        }, 1000);
-        //                    }, 700);
-        //                }, 700);
-        //            }, 700);
-        //        }, 700);
-        //
-        //        setTimeout(function () {
-        //            ignoreProximity = false;
-        //        }, 5000);
-        //    }
-        //});
-
     },
 
-    move: function () {
-        var that = this;
-        that.relay.turnOn();
-        that.body.angle(90);
-        that.rightHand.angle(90);
-        that.leftHand.angle(90);
-        that.head.angle(90);
-        setTimeout(that.relay.turnOff, 500);
+    initMoveWorker: function () {
+        this.moveWorker();
     },
 
-    reset: function () {
-        var that = this;
-        this.writeMessage("");
-        this.relay.turnOn();
-        this.buzzer.digitalWrite(0);
-        this.body.angle(90);
-        this.head.angle(90);
-        this.rightHand.angle(90);
-        this.leftHand.angle(90);
-        setTimeout(function(){
-            that.relay.turnOff();
-        },1000);
+    initVoiceSynthesizer: function () {
+        this.speechWorker();
     },
 
-    writeMessage: function (message, color) {
-        var that = this;
-        var str = message.toString();
-        while (str.length < 16) {
-            str = str + " ";
-        }
-        console.log("write LCD msg", message);
-        that.screen.setCursor(0, 0);
-        that.screen.write(str);
-        switch (color) {
-            case "red":
-                that.screen.setColor(255, 0, 0);
-                break;
-            case "green":
-                that.screen.setColor(0, 255, 0);
-                break;
-            case "blue":
-                that.screen.setColor(0, 0, 255);
-                break;
-            default:
-                that.screen.setColor(255, 255, 255);
-                break;
+    initAudioPlayerWorker: function () {
+        this.audioPlayerWorker();
+    },
+
+    runVoiceSynthesizer: function (msg, callback) {
+        if (this.isUnMuted) {
+            var cmd = "/home/root/git/intel-edison/speak-cm.sh \"" + msg + "\"";
+            this.debug("executing: " + cmd);
+            exec(cmd, callback);
         }
     },
 
-    detectSound: function (val) {
-        var that = this;
-        if (val >= 450) {
-            console.log("Sound detected:", val);
-            that.writeMessage("Sound detected", "blue");
-            that.speechQueue.push("What is this noise? I can't work like that.");
-            setTimeout(function () {
-                that.reset();
-            }, 500);
+    executeAudioPlayer: function (filename, callback) {
+        var my = this;
+        if (this.isUnMuted) {
+            var cmd = "mplayer -volume " + Config.audioVolume + " /home/root/git/intel-edison/audio/" + filename;
+            my.debug("executing: " + cmd);
+            exec(cmd, callback);
         }
-    },
-
-    ttsWorker: function () {
-        this.led.turnOff();
-        var delay = 500;
-        if (this.speechQueue.length !== 0) {
-            var msg = this.speechQueue.shift();
-            var xFactor = 70;
-            this.textToSpeach(msg);
-            this.led.turnOn();
-            delay = msg.length * xFactor + 1500;
-        }
-        setTimeout(this.ttsWorker, delay);
     },
 
     say: function (msg) {
         this.speechQueue.push(msg);
     },
 
-    textToSpeach: function (msg) {
-        var cmd = "/home/root/git/intel-edison/speak-cm.sh \"" + msg + "\"";
-        this.writeMessage(msg, "red");
-        exec(cmd, puts);
+    blockSoundDetection: function () {
+        this.detectSound++;
     },
 
-    move: function (angle, servoName) {
-        var that = this;
-        this.relay.turnOn();
-        this[servoName].angle(angle);
-        setTimeout(function () {
-            that.relay.turnOff();
-        }, 1000);
-        return "moving " + servoName + " @ " + angle;
-    },
+    slackMessageProcessor: function (message) {
+        this.debug({
+            "slack_message": message.text,
+            from: message.user,
+            channel: message.channel
+        });
 
-    commands: function () {
-        return {
-            say: this.say,
-            move: this.move,
-            dance: this.dance
+        var makeMention = function (userId) {
+            return '<@' + userId + '>: ';
         };
+
+        var isDirect = function (userId, messageText) {
+            var userTag = makeMention(userId);
+            return messageText &&
+                messageText.length >= userTag.length &&
+                messageText.substr(0, userTag.length) === userTag;
+        };
+
+        var startWith = function (string, startWith) {
+            return trimmedMessage.substr(0, startWith.length) === startWith;
+        };
+
+        var removePrefix = function (string, prefix) {
+            return string.substr(prefix.length, string.length).trim();
+        };
+
+        if (message.text) {
+            var channel = this.slack.getChannelGroupOrDMByID(message.channel);
+            var trimmedMessage = removePrefix(message.text, makeMention(this.slack.self.id));
+
+            if (message.type === 'message' && isDirect(this.slack.self.id, message.text)) {
+                this.processSlackMessage(trimmedMessage, removePrefix, startWith, channel);
+            }
+        }
     },
 
-    name: "Cookie Monster",
+    releaseSoundDetection: function () {
+        this.detectSound--;
+    },
 
-    sayings: ["I would do anything for a cookie.",
-        "Lunch time. Lunch alert. Lunch alert",
-        "C is for Cookie and cookie is for me!"
-    ],
+    buzzerWorker: function () {
+        var my = this;
+        if (this.buzzerQueue.length !== 0) {
+            this.blockSoundDetection();
+            var interval = this.buzzerQueue.shift();
+            if (this.isUnMuted) {
+                setTimeout(function () {
+                    my.buzzer.digitalWrite(1);
+                }, 50);
+
+                setTimeout(function () {
+                    my.buzzer.digitalWrite(0);
+                    setTimeout(function () {
+                        my.releaseSoundDetection();
+                    }, 100);
+                    setTimeout(my.buzzerWorker, Config.buzzerWorkerInterval);
+                }, interval + 50);
+            }
+        } else {
+            setTimeout(this.buzzerWorker, Config.buzzerWorkerInterval);
+        }
+    },
+
+    initBuzzerWorker: function () {
+        this.buzzerWorker();
+    },
+
+    beep: function (interval) {
+        if (!interval) {
+            interval = Config.buzzerDefaultLength;
+        }
+        this.buzzerQueue.push(interval);
+    },
+
+    soundDetected: function () {
+        var my = this;
+        my.writeMessage("Sound detected", "blue");
+        my.say("What is this noise? Stop it.");
+        setTimeout(function () {
+            my.clearLCD();
+        }, Config.soundDetectionBreakDuration);
+    },
+
+    clearLCD: function () {
+        this.screen.clear();
+    },
+
+    debug: function (msg) {
+        winston.log('debug', msg);
+    },
+
+    log: function (msg) {
+        winston.log('info', msg);
+    },
+
+    writeMessage: function (message, color) {
+        var my = this;
+        var line1 = message.toString().trim();
+        while (line1.length < 16) {
+            line1 = line1 + " ";
+        }
+
+        this.debug("write LCD msg: " + message);
+        my.screen.clear();
+        my.screen.setCursor(0, 0);
+        my.screen.home();
+        my.screen.write(line1);
+        if (line1.length > 16) {
+            var line2 = line1.substring(16);
+            my.screen.setCursor(1, 0);
+            my.screen.write(line2);
+        }
+
+        switch (color) {
+            case "red":
+                my.screen.setColor(255, 0, 0);
+                break;
+            case "green":
+                my.screen.setColor(0, 255, 0);
+                break;
+            case "blue":
+                my.screen.setColor(0, 0, 255);
+                break;
+            default:
+                my.screen.setColor(255, 255, 255);
+                break;
+        }
+    },
+
+    name: Config.name,
+
+    sayings: Config.sayings,
 
     connections: {
         edison: {
@@ -217,66 +433,9 @@ var CM = {
     },
 
     devices: {
-        head: {
-            driver: "servo",
-            pin: 3,
-            freq: 50,
-            // pulseWidth in MicroSeconds as per servo spec sheet
-            // e.g. http://www.servodatabase.com/servo/towerpro/sg90
-            pulseWidth: {
-                min: 500,
-                max: 2400
-            }
-            //                limits: {
-            //                    bottom: 20,
-            //                    top: 160
-            //                }
-        },
-        leftHand: {
-            driver: "servo",
-            pin: 5,
-            freq: 50,
-            // pulseWidth in MicroSeconds as per servo spec sheet
-            // e.g. http://www.servodatabase.com/servo/towerpro/sg90
-            pulseWidth: {
-                min: 500,
-                max: 2400
-            }
-        },
-        rightHand: {
-            driver: "servo",
-            pin: 6,
-            freq: 50,
-            // pulseWidth in MicroSeconds as per servo spec sheet
-            // e.g. http://www.servodatabase.com/servo/towerpro/sg90
-            pulseWidth: {
-                min: 500,
-                max: 2400
-            }
-        },
-        body: {
-            driver: "servo",
-            pin: 9,
-            freq: 50,
-            // pulseWidth in MicroSeconds as per servo spec sheet
-            // e.g. http://www.servodata\\base.com/servo/towerpro/sg90
-            pulseWidth: {
-                min: 500,
-                max: 2400
-            }
-            //                ,
-            //                limits: {
-            //                    bottom: 20,
-            //                    top: 160
-            //                }
-        },
         buttonLeft: {
             driver: 'button',
             pin: 2
-        },
-        relay: {
-            driver: 'led',
-            pin: 4
         },
         buzzer: {
             driver: "direct-pin",
@@ -291,7 +450,6 @@ var CM = {
             driver: 'led',
             pin: 13
         },
-
         proximity: {
             driver: 'analog-sensor',
             pin: 0,
@@ -302,10 +460,12 @@ var CM = {
             driver: "analog-sensor",
             pin: 1,
             connection: "edison",
-            lowerLimit: 40,
+            lowerLimit: 700,
             upperLimit: 900
         },
-
+        servos: {
+            driver: 'pca9685'
+        },
         screen: {
             driver: "upm-jhd1313m1",
             connection: "edison"
@@ -313,250 +473,59 @@ var CM = {
     },
 
     dance: function () {
-        this.relay.turnOn();
-        var my = this;
-        this.body.angle(30);
-        this.rightHand.angle(0);
-        this.leftHand.angle(180);
-        this.head.angle(180);
-
-        setTimeout(function () {
-            my.body.angle(90);
-            my.rightHand.angle(90);
-            my.leftHand.angle(90);
-            my.head.angle(90);
-
-            setTimeout(function () {
-                my.body.angle(90);
-                my.rightHand.angle(60);
-                my.leftHand.angle(20);
-                my.head.angle(45);
-
-                setTimeout(function () {
-                    my.body.angle(90);
-                    my.rightHand.angle(90);
-                    my.leftHand.angle(90);
-                    my.head.angle(90);
-
-                    setTimeout(function () {
-                        my.body.angle(90);
-                        my.rightHand.angle(90);
-                        my.leftHand.angle(90);
-                        my.head.angle(90);
-
-                        setTimeout(function () {
-                            my.body.angle(90);
-                            my.rightHand.angle(60);
-                            my.leftHand.angle(20);
-                            my.head.angle(45);
-
-                            setTimeout(function () {
-                                my.body.angle(90);
-                                my.rightHand.angle(90);
-                                my.leftHand.angle(90);
-                                my.head.angle(90);
-
-                                setTimeout(function () {
-                                    my.body.angle(180);
-                                    my.rightHand.angle(180);
-                                    my.leftHand.angle(0);
-                                    my.head.angle(0);
-
-                                    setTimeout(function () {
-                                        my.body.angle(120);
-                                        my.rightHand.angle(180);
-                                        my.leftHand.angle(0);
-                                        my.head.angle(60);
-                                    }, 700);
-
-                                    setTimeout(function () {
-                                        my.body.angle(60);
-                                        my.rightHand.angle(180);
-                                        my.leftHand.angle(0);
-                                        my.head.angle(120);
-
-                                        setTimeout(function () {
-                                            my.body.angle(0);
-                                            my.rightHand.angle(180);
-                                            my.leftHand.angle(0);
-                                            my.head.angle(0);
-
-                                            setTimeout(function () {
-                                                my.body.angle(90);
-                                                my.rightHand.angle(90);
-                                                my.leftHand.angle(120);
-                                                my.head.angle(90);
-
-                                                setTimeout(function () {
-                                                    my.body.angle(90);
-                                                    my.rightHand.angle(90);
-                                                    my.leftHand.angle(90);
-                                                    my.head.angle(90);
-
-                                                    setTimeout(function () {
-                                                        my.body.angle(90);
-                                                        my.rightHand.angle(60);
-                                                        my.leftHand.angle(20);
-                                                        my.head.angle(45);
-
-                                                        setTimeout(function () {
-                                                            my.body.angle(90);
-                                                            my.rightHand.angle(90);
-                                                            my.leftHand.angle(90);
-                                                            my.head.angle(90);
-
-                                                            setTimeout(function () {
-                                                                my.body.angle(90);
-                                                                my.rightHand.angle(90);
-                                                                my.leftHand.angle(90);
-                                                                my.head.angle(90);
-
-                                                                setTimeout(function () {
-                                                                    my.body.angle(90);
-                                                                    my.rightHand.angle(60);
-                                                                    my.leftHand.angle(20);
-                                                                    my.head.angle(45);
-
-                                                                    setTimeout(function () {
-                                                                        my.body.angle(90);
-                                                                        my.rightHand.angle(90);
-                                                                        my.leftHand.angle(90);
-                                                                        my.head.angle(90);
-
-                                                                        setTimeout(function () {
-                                                                            my.body.angle(180);
-                                                                            my.rightHand.angle(180);
-                                                                            my.leftHand.angle(0);
-                                                                            my.head.angle(0);
-
-                                                                            setTimeout(function () {
-                                                                                my.body.angle(120);
-                                                                                my.rightHand.angle(180);
-                                                                                my.leftHand.angle(0);
-                                                                                my.head.angle(60);
-                                                                            }, 700);
-
-                                                                            setTimeout(function () {
-                                                                                my.body.angle(60);
-                                                                                my.rightHand.angle(180);
-                                                                                my.leftHand.angle(0);
-                                                                                my.head.angle(120);
-
-                                                                                setTimeout(function () {
-                                                                                    my.body.angle(0);
-                                                                                    my.rightHand.angle(180);
-                                                                                    my.leftHand.angle(0);
-                                                                                    my.head.angle(0);
-
-                                                                                    setTimeout(function () {
-                                                                                        my.body.angle(90);
-                                                                                        my.rightHand.angle(90);
-                                                                                        my.leftHand.angle(120);
-                                                                                        my.head.angle(90);
-                                                                                        setTimeout(function () {
-                                                                                            my.relay.turnOff();
-                                                                                        }, 1000);
-                                                                                    }, 700);
-                                                                                }, 700);
-                                                                            }, 700);
-                                                                        }, 700);
-
-                                                                    }, 700);
-                                                                }, 700);
-
-                                                            }, 700);
-                                                        }, 700);
-                                                    }, 700);
-
-                                                }, 700);
-                                            }, 700);
-                                        }, 700);
-                                    }, 700);
-                                }, 700);
-
-                            }, 700);
-                        }, 700);
-
-                    }, 700);
-                }, 700);
-            }, 700);
-
-        }, 700);
+        this.blockSoundDetection();
+        this.log("Dance not implemented");
     },
 
-    initRemoteCommandReceiver: function () {
-        console.log('inside init');
-        var that = this;
+    initSlack: function () {
+        var my = this;
+        this.slack.on('message', function (message) {
+            my.slackMessageProcessor(message);
+        });
 
-        //        var cmd = "/home/root/git/intel-edison/bluetooth_speaker.sh";
-        //        console.log("executing", cmd);
-        //        exec(cmd, puts);
+        this.slack.on('error', function (err) {
+            winston.log('error', "Slack Error", err);
+        });
 
-
-        //        every((5).seconds(), function () {
-        //            var optionsget = {
-        //                host: 'mouseinabox.info',
-        //                port: 8000,
-        //                path: '/get_commands',
-        //                method: 'GET'
-        //            };
-        //
-        //            var actionsObject = {};
-        //
-        //            // do the GET request
-        //            var reqGet = http.request(optionsget, function (res) {
-        //
-        //                res.on('data', function (d) {
-        //                    actionsObject = JSON.parse(d);
-        //                    console.log(actionsObject);
-        //                    for (var i = 0; i < actionsObject.length; i++) {
-        //                        if (actionsObject[i].command === 'say') {
-        //                            console.log(actionsObject[i].params);
-        //                            //that.say(actionsObject[i].params);
-        //                            that.speechQueue.push(actionsObject[i].params);
-        //                        } else if (actionsObject[i].command === 'dance') {
-        //                            console.log(actionsObject[i].params);
-        //                            //that.say(actionsObject[i].params);
-        //                            that.dance();
-        //                        } else if (actionsObject[i].command === 'move') {
-        //                            //console.log(actionsObject[i]);
-        //                            switch (actionsObject[i].part) {
-        //                            case 'left_hand':
-        //                                that.leftHand.angle(actionsObject[i].angle);
-        //                                break;
-        //                            case 'right_hand':
-        //                                that.rightHand.angle(actionsObject[i].angle);
-        //                                break;
-        //                            case 'head':
-        //                                that.head.angle(actionsObject[i].angle);
-        //                                break;
-        //                            case 'body':
-        //                                that.body.angle(actionsObject[i].angle);
-        //                                break;
-        //                            }
-        //                            //moveQueue.push(actionsObject[i]);
-        //                        }
-        //                        console.log(actionsObject[i].command);
-        //                    }
-        //                });
-        //
-        //            });
-        //
-        //            reqGet.end();
-        //            reqGet.on('error', function (e) {
-        //                console.error(e);
-        //            });
-        //
-        //        });
-
+        this.slack.on('open', function () {
+            my.log("Connected to " + my.slack.team.name + " as @" + my.slack.self.name);
+            my.writeMessage("Slack OK", "red");
+            my.beep(200);
+        });
+        this.slack.login();
     }
 };
 
-//Cylon.api({
-//        host: "0.0.0.0",
-//        port: "3000"
-//    })
+var winston = require('winston')
+require('winston-loggly');
+winston.level = Config.logLevel;
+
+winston.add(winston.transports.Loggly, {
+    token: process.env.LOGGY_TOKEN,
+    subdomain: "maestr0",
+    tags: ["cookie-monster"],
+    json: true,
+    isBulk: true,
+    level: Config.logLevel
+});
+
+winston.add(winston.transports.File, {filename: 'cookie.log'});
+
+Cylon.config({
+    logger: function (msg) {
+        winston.log("info", msg);
+    }
+});
+
+
+if (Config.startAPI) {
+
+    Cylon.api({
+        host: "0.0.0.0",
+        port: "3000"
+    })
+}
 
 Cylon.robot(CM)
-    .on('error', console.log)
+    .on('error', winston.error)
     .start();
