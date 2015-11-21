@@ -28,8 +28,8 @@ var Config = {
             "rightHand": 11
         },
         "ranges": {
-            "min": 50,
-            "max": 500
+            "min": 150,
+            "max": 600
         }
     },
     slack: {
@@ -85,12 +85,13 @@ var CM = {
 
     initServos: function () {
         // set the frequency to 50hz
-        this.pca9685.setPWMFreq(50);
+        this.servos.setPWMFreq(50);
+        var position = (50).fromScale(0, 100).toScale(Config.servos.ranges.min, Config.servos.ranges.max);
         // center servos
-        this.pca9685.setPWM(Config.servos.pins.body, 0, min);
-        this.pca9685.setPWM(Config.servos.pins.head, 0, min);
-        this.pca9685.setPWM(Config.servos.pins.leftHand, 0, min);
-        this.pca9685.setPWM(Config.servos.pins.rightHand, 0, min);
+        this.servos.setPWM(Config.servos.pins.body, 0, position);
+        this.servos.setPWM(Config.servos.pins.head, 0, position);
+        this.servos.setPWM(Config.servos.pins.leftHand, 0, position);
+        this.servos.setPWM(Config.servos.pins.rightHand, 0, position);
     },
 
     processSlackMessage: function (msg, removePrefix, startWith, channel) {
@@ -184,10 +185,8 @@ var CM = {
     initWifi: function () {
         var my = this;
         after((10).seconds(), function () {
-            exec("ifconfig wlan0 up", function () {
-                exec("configure_edison --showWiFiIP", function (err, out, code) {
-                    my.writeMessage("WIFI OK         IP " + out.trim(), "green");
-                });
+            exec("configure_edison --showWiFiIP", function (err, out, code) {
+                my.writeMessage("WIFI OK         IP " + out.trim(), "green");
             });
         });
     },
